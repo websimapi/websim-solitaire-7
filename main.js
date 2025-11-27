@@ -106,16 +106,18 @@ function render() {
         const container = UI.tableau[idx];
         container.innerHTML = '';
 
+        let currentTop = 0;
+
         pile.forEach((card, cardIndex) => {
             const el = CardRenderer.createCardElement(card);
-            // Stacking logic
-            // Base offset is usually about 20-30% of card height
-            // If dragging, we might need to preserve this
-            const offset = cardIndex * (card.faceUp ? 25 : 15); // Percentage or pixel? Pixels is safer for JS
-
-            // Convert to percentage for responsiveness if possible, or use pixel relative to card height
-            // Let's use % in style
-            el.style.top = `${cardIndex * (card.faceUp ? 18 : 6)}%`; 
+            
+            // Position card using cumulative offset to prevent jumps
+            el.style.top = `${currentTop}%`; 
+            
+            // Calculate offset for the next card
+            // Tight spacing (8%) for face-down cards
+            // Larger spacing (18%) for face-up cards to show content
+            currentTop += card.faceUp ? 18 : 8;
 
             container.appendChild(el);
 
