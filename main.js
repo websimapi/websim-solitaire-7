@@ -33,11 +33,15 @@ const UI = {
     navMenuBtn: document.getElementById('nav-menu-btn'),
     menuOverlay: document.getElementById('menu-overlay'),
     menuNewDealBtn: document.getElementById('menu-new-deal-btn'),
-    menuCloseBtn: document.getElementById('menu-close-btn')
+    menuCloseBtn: document.getElementById('menu-close-btn'),
+    scoreDisplay: document.getElementById('score-display'),
+    timeDisplay: document.getElementById('time-display'),
+    movesDisplay: document.getElementById('moves-display')
 };
 
 let autoCompleting = false;
 let isDealing = false;
+let timerInterval = null;
 
 // Apply any saved deck layout preference from previous sessions
 function applySavedLayout() {
@@ -72,11 +76,33 @@ const doRender = () => {
     // If we are in the middle of a deal animation, do not re-render full state yet
     if (isDealing) return;
     
+    // Update Stats
+    UI.scoreDisplay.textContent = game.score;
+    UI.movesDisplay.textContent = game.moves;
+    
     render(game, UI, audio);
     if (!autoCompleting && game.isAutoWinState()) {
         startAutoComplete();
     }
 };
+
+function formatTime(seconds) {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+}
+
+function startTimer() {
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+        game.time++;
+        UI.timeDisplay.textContent = formatTime(game.time);
+    }, 1000);
+}
+
+function stopTimer() {
+    if (timerInterval) clearInterval(timerInterval);
+}
 
 function startAutoComplete() {
     autoCompleting = true;
@@ -203,6 +229,7 @@ function flyCard(fromRect, toRect, targetEl) {
 
     if (game.load()) {
         doRender();
+        startTimer();
     } else {
         startNewGame();
     }
@@ -213,6 +240,7 @@ function flyCard(fromRect, toRect, targetEl) {
 function startNewGame() {
     game.start();
     audio.play('shuffle');
+    startTimer();
     animateDeal();
 }
 

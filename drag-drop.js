@@ -199,16 +199,34 @@ function attemptMove(target) {
 function executeMove(target) {
     // We now save state AFTER the move is fully applied so undo reverts exactly one action
     let movingCards = [];
+    let scoreDelta = 0;
+
     if (dragSource.type === 'waste') {
         movingCards = [gameRef.waste.pop()];
+        // Waste -> Tableau: +5
+        // Waste -> Foundation: +10
+        if (target.type === 'tableau') scoreDelta = 5;
+        if (target.type === 'foundation') scoreDelta = 10;
+        
     } else if (dragSource.type === 'foundation') {
         movingCards = [gameRef.foundations[dragSource.index].pop()];
+        // Foundation -> Tableau: -15
+        if (target.type === 'tableau') scoreDelta = -15;
+
     } else if (dragSource.type === 'tableau') {
         const pile = gameRef.tableau[dragSource.index];
         movingCards = pile.splice(dragSource.cardIndex);
 
+        // Tableau -> Foundation: +10
+        if (target.type === 'foundation') scoreDelta = 10;
+
         if (pile.length > 0) {
-            pile[pile.length - 1].faceUp = true;
+            const newTop = pile[pile.length - 1];
+            if (!newTop.faceUp) {
+                newTop.faceUp = true;
+                // Reveal card: +5
+                scoreDelta += 5;
+            }
         }
     }
 
@@ -217,6 +235,10 @@ function executeMove(target) {
     } else if (target.type === 'tableau') {
         gameRef.tableau[target.index].push(...movingCards);
     }
+    
+    // Update Score and Moves
+    gameRef.score = Math.max(0, (gameRef.score || 0) + scoreDelta);
+    gameRef.moves = (gameRef.moves || 0) + 1;
 
     // Save the new state after the move is complete
     if (typeof gameRef.saveState === 'function') {

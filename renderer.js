@@ -2,6 +2,10 @@ import { CardRenderer } from './card-renderer.js';
 import { makeCardInteractive } from './drag-drop.js';
 
 export function render(game, UI, audio) {
+    // Update stats immediately on render
+    if (UI.scoreDisplay) UI.scoreDisplay.textContent = game.score;
+    if (UI.movesDisplay) UI.movesDisplay.textContent = game.moves;
+
     // 1. Stock
     UI.stock.innerHTML = '';
     if (game.stock.length > 0) {

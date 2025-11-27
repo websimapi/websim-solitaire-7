@@ -20,6 +20,9 @@ export class SolitaireGame {
         this.foundations = [[], [], [], []]; // 4 piles
         this.tableau = [[], [], [], [], [], [], []]; // 7 piles
         this.history = [];
+        this.score = 0;
+        this.moves = 0;
+        this.time = 0;
         this.initDeck();
     }
 
@@ -41,6 +44,9 @@ export class SolitaireGame {
         this.foundations = [[], [], [], []];
         this.tableau = [[], [], [], [], [], [], []];
         this.history = [];
+        this.score = 0;
+        this.moves = 0;
+        this.time = 0;
 
         // Deal
         for (let i = 0; i < 7; i++) {
@@ -82,7 +88,8 @@ export class SolitaireGame {
             stock: this.clonePile(this.stock),
             waste: this.clonePile(this.waste),
             foundations: this.foundations.map(p => this.clonePile(p)),
-            tableau: this.tableau.map(p => this.clonePile(p))
+            tableau: this.tableau.map(p => this.clonePile(p)),
+            score: this.score
         };
         this.history.push(snapshot);
         this.persist();
@@ -100,6 +107,11 @@ export class SolitaireGame {
         this.waste = this.restorePile(prev.waste);
         this.foundations = prev.foundations.map(p => this.restorePile(p));
         this.tableau = prev.tableau.map(p => this.restorePile(p));
+        this.score = prev.score || 0;
+        
+        // Moves increment on undo
+        this.moves++;
+        
         this.persist();
         return true;
     }
@@ -110,7 +122,10 @@ export class SolitaireGame {
             waste: this.clonePile(this.waste),
             foundations: this.foundations.map(p => this.clonePile(p)),
             tableau: this.tableau.map(p => this.clonePile(p)),
-            history: this.history
+            history: this.history,
+            moves: this.moves,
+            time: this.time,
+            score: this.score
         };
         try {
             localStorage.setItem('solitaire_state', JSON.stringify(state));
@@ -132,6 +147,9 @@ export class SolitaireGame {
             this.foundations = state.foundations.map(p => this.restorePile(p));
             this.tableau = state.tableau.map(p => this.restorePile(p));
             this.history = state.history;
+            this.score = state.score || 0;
+            this.moves = state.moves || 0;
+            this.time = state.time || 0;
             return true;
         } catch (e) {
             console.error('Load failed', e);
@@ -264,6 +282,10 @@ export class SolitaireGame {
             // Perform mutation first, then save resulting state
             this.stock = this.waste.reverse().map(c => { c.faceUp = false; return c; });
             this.waste = [];
+            
+            this.score = Math.max(0, this.score - 100);
+            this.moves++;
+            
             this.saveState();
             return 'recycle';
         } else {
@@ -271,6 +293,9 @@ export class SolitaireGame {
             const card = this.stock.pop();
             card.faceUp = true;
             this.waste.push(card);
+            
+            this.moves++;
+            
             this.saveState();
 
             /* Previous "Draw 3" logic stored for later:
