@@ -74,12 +74,24 @@ function render() {
     if (game.waste.length > 0) {
         // Show last 3 cards drawn
         const visibleWaste = game.waste.slice(-3);
+        const topRow = document.getElementById('top-row');
+        const fanRight = !topRow.classList.contains('row-reverse');
+
         visibleWaste.forEach((c, i) => {
             const el = CardRenderer.createCardElement(c);
             
-            // Fan out to the right (25% of card width per card)
-            el.style.left = `${i * 25}%`; 
+            // Fan direction depends on deck position:
+            // - When deck is on the left (normal), fan to the right.
+            // - When deck is on the right (row-reverse), fan to the left.
             el.style.top = '0px';
+            if (fanRight) {
+                el.style.right = '';
+                el.style.left = `${i * 25}%`;
+            } else {
+                el.style.left = '';
+                el.style.right = `${i * 25}%`;
+            }
+
             UI.waste.appendChild(el);
 
             // Only the top-most card is interactive
