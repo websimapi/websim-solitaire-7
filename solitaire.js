@@ -126,16 +126,18 @@ export class SolitaireGame {
         if (this.stock.length === 0) {
             // Recycle waste
             if (this.waste.length === 0) return false;
-            this.saveState();
+
+            // Perform mutation first, then save resulting state
             this.stock = this.waste.reverse().map(c => { c.faceUp = false; return c; });
             this.waste = [];
+            this.saveState();
             return 'recycle';
         } else {
             // Draw 1 card
-            this.saveState();
             const card = this.stock.pop();
             card.faceUp = true;
             this.waste.push(card);
+            this.saveState();
 
             /* Previous "Draw 3" logic stored for later:
             let drawnCount = 0;

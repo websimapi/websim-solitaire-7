@@ -197,11 +197,7 @@ function attemptMove(target) {
 }
 
 function executeMove(target) {
-    // Save state before mutating so we can undo
-    if (typeof gameRef.saveState === 'function') {
-        gameRef.saveState();
-    }
-
+    // We now save state AFTER the move is fully applied so undo reverts exactly one action
     let movingCards = [];
     if (dragSource.type === 'waste') {
         movingCards = [gameRef.waste.pop()];
@@ -220,6 +216,11 @@ function executeMove(target) {
         gameRef.foundations[target.index].push(movingCards[0]);
     } else if (target.type === 'tableau') {
         gameRef.tableau[target.index].push(...movingCards);
+    }
+
+    // Save the new state after the move is complete
+    if (typeof gameRef.saveState === 'function') {
+        gameRef.saveState();
     }
 }
 
