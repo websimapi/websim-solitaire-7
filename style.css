@@ -111,18 +111,21 @@ body {
     position: absolute;
     display: flex;
     flex-direction: row;
-    align-items: flex-start;
+    align-items: center;
     justify-content: flex-start;
     line-height: 1;
-    padding: 0.2em;
+    padding: 0.15em;
     box-sizing: border-box;
+    white-space: nowrap;
+    width: 100%;
+    overflow: hidden;
 }
 
 .card-corner .rank {
     letter-spacing: -0.05em;
     font-weight: 700;
-    font-size: 1.8em;
-    margin-right: 0.05em;
+    font-size: 1.5em;
+    margin-right: 0.1em;
 }
 
 .card-corner .suit {

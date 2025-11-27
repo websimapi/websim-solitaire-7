@@ -115,9 +115,9 @@ function render() {
             el.style.top = `${currentTop}%`; 
             
             // Calculate offset for the next card
-            // Tight spacing (8%) for face-down cards
-            // Larger spacing (18%) for face-up cards to show content
-            currentTop += card.faceUp ? 18 : 8;
+            // 12% for face-down cards to show a strip of the back
+            // 35% for face-up cards to ensure the large header (rank + suit) is visible
+            currentTop += card.faceUp ? 35 : 12;
 
             container.appendChild(el);
 
