@@ -190,8 +190,6 @@ function flyCard(fromRect, toRect, targetEl) {
     // Restore preferred deck layout before starting the game/render
     applySavedLayout();
 
-    startNewGame();
-
     setupDragAndDrop({
         game,
         UI,
@@ -199,7 +197,11 @@ function flyCard(fromRect, toRect, targetEl) {
         render: doRender
     });
 
-    doRender();
+    if (game.load()) {
+        doRender();
+    } else {
+        startNewGame();
+    }
 
     attachListeners();
 })();

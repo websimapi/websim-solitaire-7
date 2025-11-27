@@ -84,6 +84,7 @@ export class SolitaireGame {
             tableau: this.tableau.map(p => this.clonePile(p))
         };
         this.history.push(snapshot);
+        this.persist();
     }
 
     undo() {
@@ -98,7 +99,43 @@ export class SolitaireGame {
         this.waste = this.restorePile(prev.waste);
         this.foundations = prev.foundations.map(p => this.restorePile(p));
         this.tableau = prev.tableau.map(p => this.restorePile(p));
+        this.persist();
         return true;
+    }
+
+    persist() {
+        const state = {
+            stock: this.clonePile(this.stock),
+            waste: this.clonePile(this.waste),
+            foundations: this.foundations.map(p => this.clonePile(p)),
+            tableau: this.tableau.map(p => this.clonePile(p)),
+            history: this.history
+        };
+        try {
+            localStorage.setItem('solitaire_state', JSON.stringify(state));
+        } catch (e) {
+            console.error('Save failed', e);
+        }
+    }
+
+    load() {
+        try {
+            const json = localStorage.getItem('solitaire_state');
+            if (!json) return false;
+            const state = JSON.parse(json);
+            
+            if (!state.stock || !state.tableau || !state.history) return false;
+
+            this.stock = this.restorePile(state.stock);
+            this.waste = this.restorePile(state.waste);
+            this.foundations = state.foundations.map(p => this.restorePile(p));
+            this.tableau = state.tableau.map(p => this.restorePile(p));
+            this.history = state.history;
+            return true;
+        } catch (e) {
+            console.error('Load failed', e);
+            return false;
+        }
     }
 
     isAutoWinState() {
