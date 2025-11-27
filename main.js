@@ -35,6 +35,7 @@ let dragStartPos = { x: 0, y: 0 };
 let originalPositions = []; // Array of { top, left } for reverting
 let isDragging = false;
 let pointerId = null;
+let lastTap = { time: 0, id: null };
 
 // Initialize
 (async () => {
@@ -254,8 +255,17 @@ function onPointerUp(e) {
     pointerId = null;
 
     if (!isDragging) {
-        // It was a click/tap
-        handleAutoMove(draggedCards[0].card, dragSource);
+        // Double tap detection
+        const now = Date.now();
+        const card = draggedCards[0].card;
+        
+        if (lastTap.id === card.id && (now - lastTap.time) < 300) {
+            handleAutoMove(card, dragSource);
+            lastTap = { time: 0, id: null };
+        } else {
+            lastTap = { time: now, id: card.id };
+        }
+
         cleanupDrag();
         return;
     }
@@ -393,29 +403,37 @@ function executeMove(target) {
 }
 
 function handleAutoMove(card, source) {
-    // Try foundation first
-    for (let i = 0; i < 4; i++) {
-        if (game.canMoveToFoundation(card, i)) {
-            executeMove({ type: 'foundation', index: i });
-            audio.play('place');
-            render();
-            return;
+    // 1. Try Foundation (Only if single card)
+    let isSingleCard = true;
+    if (source.type === 'tableau') {
+        const pile = game.tableau[source.index];
+        // If the card index is not the last one, it has cards on top (is a stack)
+        if (source.cardIndex < pile.length - 1) {
+            isSingleCard = false;
         }
     }
 
-    // Try other tableau columns (only if coming from waste or foundation, or if uncovering a card)
-    // If simply moving between tableaus without uncovering anything, it's rarely useful to auto-move, 
-    // but users might expect it to group stacks.
-
-    // Simple heuristic: If from waste, try tableau.
-    if (source.type === 'waste') {
-        for (let i = 0; i < 7; i++) {
-            if (game.canMoveToTableau(card, i)) {
-                executeMove({ type: 'tableau', index: i });
+    if (isSingleCard) {
+        for (let i = 0; i < 4; i++) {
+            if (game.canMoveToFoundation(card, i)) {
+                executeMove({ type: 'foundation', index: i });
                 audio.play('place');
                 render();
                 return;
             }
+        }
+    }
+
+    // 2. Try Tableau (Stacks or Single)
+    for (let i = 0; i < 7; i++) {
+        // Skip self
+        if (source.type === 'tableau' && source.index === i) continue;
+
+        if (game.canMoveToTableau(card, i)) {
+            executeMove({ type: 'tableau', index: i });
+            audio.play('place');
+            render();
+            return;
         }
     }
 }
