@@ -115,7 +115,7 @@ function render() {
 
             // Convert to percentage for responsiveness if possible, or use pixel relative to card height
             // Let's use % in style
-            el.style.top = `${cardIndex * (card.faceUp ? 18 : 10)}%`; 
+            el.style.top = `${cardIndex * (card.faceUp ? 18 : 6)}%`; 
 
             container.appendChild(el);
 
