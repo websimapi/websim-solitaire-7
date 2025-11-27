@@ -143,11 +143,10 @@ function attachListeners() {
 
 function setupStockInteraction(container) {
     let startX, startY;
-    let isLayoutDrag = false;
+    let isDrag = false;
     let ghost = null;
     let pointerId = null;
-    let longPressTimer = null;
-    const LONG_PRESS_DURATION = 1500;
+    let pressStartTime = 0; // track press time for drag vs tap
 
     container.addEventListener('pointerdown', (e) => {
         // Allow primary touch/click only
@@ -157,18 +156,10 @@ function setupStockInteraction(container) {
         
         startX = e.clientX;
         startY = e.clientY;
-        isLayoutDrag = false;
+        isDrag = false;
         pointerId = e.pointerId;
+        pressStartTime = Date.now();
         container.setPointerCapture(pointerId);
-
-        // Start timer for Long Press (Layout Drag)
-        longPressTimer = setTimeout(() => {
-            isLayoutDrag = true;
-            createGhost(startX, startY);
-            showLayoutIndicators();
-            highlightActiveIndicator(startX, startY);
-            if (navigator.vibrate) navigator.vibrate(50);
-        }, LONG_PRESS_DURATION);
 
         container.addEventListener('pointermove', onMove);
         container.addEventListener('pointerup', onUp);
@@ -180,59 +171,48 @@ function setupStockInteraction(container) {
 
         const dx = e.clientX - startX;
         const dy = e.clientY - startY;
+        const elapsed = Date.now() - pressStartTime;
 
-        if (isLayoutDrag) {
-            // Drag Mode
-            if (ghost) {
-                ghost.style.left = `${e.clientX}px`;
-                ghost.style.top = `${e.clientY}px`;
-                highlightActiveIndicator(e.clientX, e.clientY);
-            }
-        } else {
-            // Waiting Mode: cancel long press if moved too much
-            if (Math.hypot(dx, dy) > 20) {
-                if (longPressTimer) {
-                    clearTimeout(longPressTimer);
-                    longPressTimer = null;
-                }
-            }
+        // Only start drag if the press has been held long enough AND moved enough
+        if (!isDrag && elapsed > 1500 && Math.hypot(dx, dy) > 20) {
+            isDrag = true;
+            createGhost(e.clientX, e.clientY);
+            showLayoutIndicators();
+            highlightActiveIndicator(e.clientX, e.clientY);
+        }
+
+        if (isDrag && ghost) {
+            ghost.style.left = `${e.clientX}px`;
+            ghost.style.top = `${e.clientY}px`;
+            ghost.style.transform = 'translate(-50%, -50%)';
+            highlightActiveIndicator(e.clientX, e.clientY);
         }
     }
 
     function onUp(e) {
         if (e.pointerId !== pointerId) return;
 
-        if (longPressTimer) {
-            clearTimeout(longPressTimer);
-            longPressTimer = null;
-        }
-
         container.releasePointerCapture(pointerId);
         container.removeEventListener('pointermove', onMove);
         container.removeEventListener('pointerup', onUp);
         container.removeEventListener('pointercancel', onUp);
 
-        if (isLayoutDrag) {
+        if (isDrag) {
             // Apply Layout Change
             updateLayout(e.clientX, e.clientY);
             if (ghost) ghost.remove();
             ghost = null;
             hideLayoutIndicators();
         } else {
-            // Handle Tap (only if we didn't drift significantly)
-            const dist = Math.hypot(e.clientX - startX, e.clientY - startY);
-            
-            if (dist <= 20) {
-                if (e.target.closest('#stock') || e.target.id === 'stock-empty') {
-                    const result = game.drawFromStock();
-                    if (result) {
-                        audio.play('place');
-                        render();
-                    }
-                }
+            // Handle Tap (Draw Card) regardless of exact target inside the stock container
+            const result = game.drawFromStock();
+            if (result) {
+                audio.play('place');
+                render();
             }
         }
-        isLayoutDrag = false;
+
+        isDrag = false;
         pointerId = null;
     }
 
