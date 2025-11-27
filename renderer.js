@@ -22,7 +22,8 @@ export function render(game, UI, audio) {
         // Show last 3 cards drawn
         const visibleWaste = game.waste.slice(-3);
         const topRow = document.getElementById('top-row');
-        const fanRight = !topRow.classList.contains('row-reverse');
+        const stackOnRight = topRow.classList.contains('row-reverse');
+        const fanRight = !stackOnRight;
 
         visibleWaste.forEach((c, i) => {
             const el = CardRenderer.createCardElement(c);
@@ -33,10 +34,16 @@ export function render(game, UI, audio) {
             el.style.top = '0px';
             if (fanRight) {
                 el.style.right = '';
-                el.style.left = `${i * 25}%`;
+                el.style.left = `${i * 40}%`;
             } else {
                 el.style.left = '';
-                el.style.right = `${i * 25}%`;
+                el.style.right = `${i * 40}%`;
+            }
+
+            // When the stock/waste block is on the right side of the screen,
+            // shift the small rank/suit info to the right edge of the card.
+            if (stackOnRight) {
+                el.classList.add('right-stack');
             }
 
             UI.waste.appendChild(el);
