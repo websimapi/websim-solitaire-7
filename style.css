@@ -245,3 +245,29 @@ button {
     pointer-events: none;
     box-sizing: border-box;
 }
+
+/* Layout Drop Targets */
+.layout-target {
+    position: fixed;
+    width: var(--card-width);
+    height: var(--card-height);
+    border: 2px dashed rgba(255, 255, 255, 0.3);
+    border-radius: var(--card-radius);
+    pointer-events: none;
+    z-index: 3000;
+    box-sizing: border-box;
+    background: rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+}
+
+.layout-target.active {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: #fff;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    transform: scale(1.05);
+}
+
+.layout-target.tl { top: var(--card-gap); left: var(--card-gap); }
+.layout-target.tr { top: var(--card-gap); right: var(--card-gap); }
+.layout-target.bl { bottom: var(--card-gap); left: var(--card-gap); }
+.layout-target.br { bottom: var(--card-gap); right: var(--card-gap); }

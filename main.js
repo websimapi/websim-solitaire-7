@@ -36,6 +36,7 @@ let originalPositions = []; // Array of { top, left } for reverting
 let isDragging = false;
 let pointerId = null;
 let lastTap = { time: 0, id: null };
+let layoutIndicators = [];
 
 // Initialize
 (async () => {
@@ -173,6 +174,8 @@ function setupStockInteraction(container) {
         if (!isDrag && Math.hypot(dx, dy) > 20) {
             isDrag = true;
             createGhost(e.clientX, e.clientY);
+            showLayoutIndicators();
+            highlightActiveIndicator(e.clientX, e.clientY);
         }
 
         if (isDrag && ghost) {
@@ -182,6 +185,7 @@ function setupStockInteraction(container) {
             ghost.style.left = `${e.clientX}px`;
             ghost.style.top = `${e.clientY}px`;
             ghost.style.transform = 'translate(-50%, -50%)';
+            highlightActiveIndicator(e.clientX, e.clientY);
         }
     }
 
@@ -198,6 +202,7 @@ function setupStockInteraction(container) {
             updateLayout(e.clientX, e.clientY);
             if (ghost) ghost.remove();
             ghost = null;
+            hideLayoutIndicators();
         } else {
             // Handle Tap (Draw Card)
             if (e.target.closest('#stock') || e.target.id === 'stock-empty') {
@@ -527,4 +532,36 @@ function handleAutoMove(card, source) {
             return;
         }
     }
+}
+
+function showLayoutIndicators() {
+    const positions = ['tl', 'tr', 'bl', 'br'];
+    positions.forEach(pos => {
+        const el = document.createElement('div');
+        el.className = `layout-target ${pos}`;
+        document.body.appendChild(el);
+        layoutIndicators.push(el);
+    });
+}
+
+function hideLayoutIndicators() {
+    layoutIndicators.forEach(el => el.remove());
+    layoutIndicators = [];
+}
+
+function highlightActiveIndicator(x, y) {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    const isRight = x > w / 2;
+    const isBottom = y > h / 2;
+    
+    const targetClass = (isBottom ? 'b' : 't') + (isRight ? 'r' : 'l');
+    
+    layoutIndicators.forEach(el => {
+        if (el.classList.contains(targetClass)) {
+            el.classList.add('active');
+        } else {
+            el.classList.remove('active');
+        }
+    });
 }
