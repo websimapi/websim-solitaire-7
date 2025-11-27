@@ -1,0 +1,189 @@
+:root {
+    --card-width: 10vw;
+    --card-height: 14vw;
+    --card-gap: 2vw;
+    --bg-color: #2e8b57;
+    --card-radius: 5px;
+    --text-color: #fff;
+    --card-border: 1px solid #aaa;
+}
+
+/* Desktop tweaks */
+@media (min-width: 600px) {
+    :root {
+        --card-width: 80px;
+        --card-height: 112px;
+        --card-gap: 20px;
+    }
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--bg-color);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+}
+
+#game-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    padding: var(--card-gap);
+    box-sizing: border-box;
+}
+
+#top-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: var(--card-gap);
+    height: var(--card-height);
+    flex-shrink: 0;
+}
+
+.spacer {
+    flex-grow: 1;
+}
+
+#tableau-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    flex-grow: 1;
+    position: relative;
+}
+
+.pile-container {
+    width: var(--card-width);
+    height: var(--card-height);
+    position: relative;
+    border-radius: var(--card-radius);
+    background-color: rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+}
+
+.pile-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 2rem;
+    cursor: pointer;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--card-radius);
+    box-sizing: border-box;
+}
+
+.card {
+    width: var(--card-width);
+    height: var(--card-height);
+    background-color: white;
+    position: absolute;
+    border-radius: var(--card-radius);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    border: var(--card-border);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 0.2rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: transform 0.1s ease-out;
+}
+
+.card.red { color: #d40000; }
+.card.black { color: #000; }
+
+.card-top, .card-bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1;
+    width: 1.5em; /* Ensure width for corner content */
+}
+
+.card-bottom {
+    transform: rotate(180deg);
+    align-self: flex-end;
+}
+
+.card-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2rem;
+}
+
+.card-back {
+    background: repeating-linear-gradient(
+        45deg,
+        #3b6da7,
+        #3b6da7 10px,
+        #305a8a 10px,
+        #305a8a 20px
+    );
+    border: 2px solid white;
+}
+
+.card-back .card-top, 
+.card-back .card-bottom, 
+.card-back .card-center {
+    display: none;
+}
+
+/* Tableau stacking */
+.tableau .card {
+    /* Top gets set via JS */
+}
+
+.dragging {
+    z-index: 1000 !important;
+    pointer-events: none; /* Let events pass through to check drop targets */
+    box-shadow: 5px 5px 15px rgba(0,0,0,0.5);
+    opacity: 0.95;
+}
+
+/* Win Overlay */
+#win-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.hidden { display: none !important; }
+
+.win-message {
+    text-align: center;
+    color: white;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 1.2rem;
+    background: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Adjustments for very small screens */
+@media (max-width: 360px) {
+    :root {
+        --card-gap: 1vw;
+    }
+}
