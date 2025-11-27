@@ -255,17 +255,8 @@ function onPointerUp(e) {
     pointerId = null;
 
     if (!isDragging) {
-        // Double tap detection
-        const now = Date.now();
         const card = draggedCards[0].card;
-        
-        if (lastTap.id === card.id && (now - lastTap.time) < 300) {
-            handleAutoMove(card, dragSource);
-            lastTap = { time: 0, id: null };
-        } else {
-            lastTap = { time: now, id: card.id };
-        }
-
+        handleAutoMove(card, dragSource);
         cleanupDrag();
         return;
     }
