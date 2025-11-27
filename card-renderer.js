@@ -18,22 +18,22 @@ export class CardRenderer {
 
         const icon = SUIT_ICONS[card.suit];
         
-        // Top Left
+        // Corner Top-Left
         const topDiv = document.createElement('div');
-        topDiv.className = 'card-top';
-        topDiv.innerHTML = `<span>${card.rank}</span><span>${icon}</span>`;
+        topDiv.className = 'card-corner top-left';
+        topDiv.innerHTML = `<span class="rank">${card.rank}</span><span class="suit">${icon}</span>`;
         el.appendChild(topDiv);
 
-        // Center (Simplified)
+        // Center
         const centerDiv = document.createElement('div');
         centerDiv.className = 'card-center';
         centerDiv.textContent = icon;
         el.appendChild(centerDiv);
 
-        // Bottom Right
+        // Corner Bottom-Right
         const bottomDiv = document.createElement('div');
-        bottomDiv.className = 'card-bottom';
-        bottomDiv.innerHTML = `<span>${card.rank}</span><span>${icon}</span>`;
+        bottomDiv.className = 'card-corner bottom-right';
+        bottomDiv.innerHTML = `<span class="rank">${card.rank}</span><span class="suit">${icon}</span>`;
         el.appendChild(bottomDiv);
 
         return el;
