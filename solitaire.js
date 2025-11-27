@@ -199,7 +199,8 @@ export class SolitaireGame {
     }
 
     getHint() {
-        // 1. Check for moves to Foundation (Tableau -> Foundation)
+        // Priority 1: Move to Foundation (Tableau -> Foundation)
+        // Helps progress the game immediately (score + clear space).
         for (let i = 0; i < 7; i++) {
             const pile = this.tableau[i];
             if (pile.length > 0) {
@@ -212,7 +213,7 @@ export class SolitaireGame {
             }
         }
 
-        // 2. Check for moves to Foundation (Waste -> Foundation)
+        // Priority 2: Move to Foundation (Waste -> Foundation)
         if (this.waste.length > 0) {
             const card = this.waste[this.waste.length - 1];
             for (let f = 0; f < 4; f++) {
@@ -222,12 +223,13 @@ export class SolitaireGame {
             }
         }
 
-        // 3. Check for moves within Tableau (Tableau -> Tableau)
+        // Priority 3: Reveal Face-Down Cards (Tableau -> Tableau)
+        // This is the most important board progression move.
+        // We only look at the deepest face-up card in each pile.
         for (let i = 0; i < 7; i++) {
             const pile = this.tableau[i];
             if (pile.length === 0) continue;
 
-            // Find first face up card
             let firstFaceUp = -1;
             for (let j = 0; j < pile.length; j++) {
                 if (pile[j].faceUp) {
@@ -235,27 +237,22 @@ export class SolitaireGame {
                     break;
                 }
             }
-
             if (firstFaceUp === -1) continue;
 
-            // Iterate all face-up cards in this pile, from bottom (deepest) to top
-            for (let j = firstFaceUp; j < pile.length; j++) {
-                const card = pile[j];
-
-                // Skip moving a King (and its stack) if it's already at the bottom of a pile
-                // Moving it to an empty spot is redundant
-                if (j === 0 && card.rank === 'K') continue;
-
+            // Only relevant if moving this stack reveals a face-down card
+            if (firstFaceUp > 0 && !pile[firstFaceUp - 1].faceUp) {
+                const card = pile[firstFaceUp];
                 for (let t = 0; t < 7; t++) {
                     if (i === t) continue;
                     if (this.canMoveToTableau(card, t)) {
-                        return { type: 'move', source: 'tableau', index: i, cardIndex: j, card: card };
+                        return { type: 'move', source: 'tableau', index: i, cardIndex: firstFaceUp, card: card };
                     }
                 }
             }
         }
 
-        // 4. Check for moves from Waste to Tableau
+        // Priority 4: Move from Waste -> Tableau
+        // Brings a new card into play.
         if (this.waste.length > 0) {
             const card = this.waste[this.waste.length - 1];
             for (let t = 0; t < 7; t++) {
@@ -265,9 +262,61 @@ export class SolitaireGame {
             }
         }
 
-        // 5. Draw from Stock
+        // Priority 5: Clear a Tableau Column (Tableau -> Tableau)
+        // Moves the base of a pile (index 0) to another pile to create an empty slot (for a King).
+        for (let i = 0; i < 7; i++) {
+            const pile = this.tableau[i];
+            if (pile.length > 0 && pile[0].faceUp) {
+                // Don't suggest moving a King from an empty slot to another empty slot/pile
+                if (pile[0].rank === 'K') continue;
+
+                const card = pile[0];
+                for (let t = 0; t < 7; t++) {
+                    if (i === t) continue;
+                    if (this.canMoveToTableau(card, t)) {
+                        return { type: 'move', source: 'tableau', index: i, cardIndex: 0, card: card };
+                    }
+                }
+            }
+        }
+
+        // Priority 6: Draw from Stock
+        // If we can't make meaningful progress on board, get new cards.
         if (this.stock.length > 0 || this.waste.length > 0) {
             return { type: 'draw' };
+        }
+
+        // Priority 7: Lateral Moves (Tableau -> Tableau)
+        // Moves that don't reveal cards or empty columns (moving from one face-up card to another).
+        // Lowest priority, prevents "moving back and forth" suggestions unless strictly necessary.
+        for (let i = 0; i < 7; i++) {
+            const pile = this.tableau[i];
+            if (pile.length === 0) continue;
+
+            let firstFaceUp = -1;
+            for (let j = 0; j < pile.length; j++) {
+                if (pile[j].faceUp) {
+                    firstFaceUp = j;
+                    break;
+                }
+            }
+            if (firstFaceUp === -1) continue;
+
+            for (let j = firstFaceUp; j < pile.length; j++) {
+                // Skip revealed-check (Priority 3) and emptying-check (Priority 5) cases
+                const isRevealing = (j > 0 && !pile[j-1].faceUp);
+                const isEmptying = (j === 0);
+                
+                if (!isRevealing && !isEmptying) {
+                    const card = pile[j];
+                    for (let t = 0; t < 7; t++) {
+                        if (i === t) continue;
+                        if (this.canMoveToTableau(card, t)) {
+                            return { type: 'move', source: 'tableau', index: i, cardIndex: j, card: card };
+                        }
+                    }
+                }
+            }
         }
 
         return { type: 'none' };
