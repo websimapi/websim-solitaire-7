@@ -212,7 +212,7 @@ body {
 }
 
 .card-corner .suit {
-    font-size: 1.925em;
+    font-size: 1.1em;
     margin-top: 0;
     margin-left: auto;
 }
@@ -233,7 +233,7 @@ body {
     top: 75%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 3.5em;
+    font-size: 4.2em;
     line-height: 1;
 }
 
