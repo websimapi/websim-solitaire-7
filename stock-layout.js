@@ -55,7 +55,7 @@ export function setupStockInteraction(container, game, audio, render) {
         container.removeEventListener('pointercancel', onUp);
 
         if (isDrag) {
-            updateLayout(e.clientX, e.clientY);
+            updateLayout(e.clientX, e.clientY, render);
             if (ghost) ghost.remove();
             ghost = null;
             hideLayoutIndicators();
@@ -81,7 +81,7 @@ export function setupStockInteraction(container, game, audio, render) {
     }
 }
 
-function updateLayout(x, y) {
+function updateLayout(x, y, render) {
     const w = window.innerWidth;
     const h = window.innerHeight;
     const gameContainer = document.getElementById('game-container');
@@ -100,6 +100,11 @@ function updateLayout(x, y) {
         topRow.classList.add('row-reverse');
     } else {
         topRow.classList.remove('row-reverse');
+    }
+
+    // Re-render so waste stack and card orientation update to new layout
+    if (typeof render === 'function') {
+        render();
     }
 }
 
