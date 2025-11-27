@@ -75,7 +75,7 @@ body {
     font-size: 0.9rem;
     font-weight: 700;
     flex-shrink: 0;
-    margin: 6px 5px;
+    margin: 6px 5px 3px;
     border-radius: 5px;
     font-family: monospace;
 }
@@ -374,9 +374,9 @@ button {
     flex-direction: column-reverse !important;
 }
 
-/* Extra spacing for stats when nav bar is at the top */
+/* Adjust spacing for stats when nav bar is at the top */
 .col-reverse #stats-bar {
-    margin-bottom: 10px;
+    margin: 3px 5px 6px;
 }
 
 /* Visual feedback for dragging the deck layout */
