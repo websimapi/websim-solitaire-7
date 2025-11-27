@@ -223,33 +223,34 @@ export class SolitaireGame {
         }
 
         // 3. Check for moves within Tableau (Tableau -> Tableau)
-        // Prioritize moves that uncover face-down cards
         for (let i = 0; i < 7; i++) {
             const pile = this.tableau[i];
             if (pile.length === 0) continue;
 
             // Find first face up card
-            let faceUpIndex = -1;
+            let firstFaceUp = -1;
             for (let j = 0; j < pile.length; j++) {
                 if (pile[j].faceUp) {
-                    faceUpIndex = j;
+                    firstFaceUp = j;
                     break;
                 }
             }
 
-            if (faceUpIndex === -1) continue;
+            if (firstFaceUp === -1) continue;
 
-            // If it's a King at the bottom, moving it is low priority (unless we just want to allow it)
-            // We'll skip it for hints to avoid loop suggestions unless it helps something else? 
-            // Actually, let's skip King at bottom for hints to keep them "progressive".
-            if (faceUpIndex === 0 && pile[faceUpIndex].rank === 'K') continue;
+            // Iterate all face-up cards in this pile, from bottom (deepest) to top
+            for (let j = firstFaceUp; j < pile.length; j++) {
+                const card = pile[j];
 
-            const card = pile[faceUpIndex];
-            
-            for (let t = 0; t < 7; t++) {
-                if (i === t) continue;
-                if (this.canMoveToTableau(card, t)) {
-                    return { type: 'move', source: 'tableau', index: i, cardIndex: faceUpIndex, card: card };
+                // Skip moving a King (and its stack) if it's already at the bottom of a pile
+                // Moving it to an empty spot is redundant
+                if (j === 0 && card.rank === 'K') continue;
+
+                for (let t = 0; t < 7; t++) {
+                    if (i === t) continue;
+                    if (this.canMoveToTableau(card, t)) {
+                        return { type: 'move', source: 'tableau', index: i, cardIndex: j, card: card };
+                    }
                 }
             }
         }

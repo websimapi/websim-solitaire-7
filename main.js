@@ -296,9 +296,7 @@ function attachListeners() {
             const hint = game.getHint();
             if (hint.type === 'none') {
                 if (confirm("No moves possible. Start a new game?")) {
-                    game.start();
-                    audio.play('shuffle');
-                    doRender();
+                    startNewGame();
                 }
             } else {
                 highlightHint(UI, hint);
