@@ -31,13 +31,19 @@ export function render(game, UI, audio) {
             // Fan direction depends on deck position:
             // - When deck is on the left (normal), fan to the right.
             // - When deck is on the right (row-reverse), fan to the left.
+            // Additionally, when the deck is on the right, the most recent
+            // card (top of waste) should sit closest to the deck.
+            const offsetIndex = stackOnRight
+                ? (visibleWaste.length - 1 - i) // reverse spacing order on the right
+                : i;
+
             el.style.top = '0px';
             if (fanRight) {
                 el.style.right = '';
-                el.style.left = `${i * 62}%`;
+                el.style.left = `${offsetIndex * 62}%`;
             } else {
                 el.style.left = '';
-                el.style.right = `${i * 62}%`;
+                el.style.right = `${offsetIndex * 62}%`;
             }
 
             // When the stock/waste block is on the right side of the screen,
