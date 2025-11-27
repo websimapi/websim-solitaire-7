@@ -185,6 +185,7 @@ function animateDeal() {
         isDealing = false;
         document.body.classList.remove('dealing');
         doRender(); // Final consistent render
+        startTimer();
     }, totalTime);
 }
 
@@ -240,7 +241,8 @@ function flyCard(fromRect, toRect, targetEl) {
 function startNewGame() {
     game.start();
     audio.play('shuffle');
-    startTimer();
+    stopTimer();
+    UI.timeDisplay.textContent = '00:00';
     animateDeal();
 }
 
