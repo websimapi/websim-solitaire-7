@@ -111,7 +111,7 @@ body {
     position: absolute;
     display: flex;
     flex-direction: row;
-    align-items: center;
+    align-items: flex-start;
     justify-content: flex-start;
     line-height: 1;
     padding: 0.2em;
@@ -126,8 +126,8 @@ body {
 }
 
 .card-corner .suit {
-    font-size: 0.8em;
-    margin-top: 0.2em;
+    font-size: 1.1em;
+    margin-top: 0;
 }
 
 .card-corner.top-left {
