@@ -164,6 +164,7 @@ body {
     position: relative;
     width: 28px;
     height: 22px;
+    transform: rotate(10deg);
 }
 
 .menu-icon .mini-card {
@@ -179,19 +180,19 @@ body {
 
 .menu-icon .card-1 {
     left: 0;
-    top: -2px;
+    top: 0;
     transform: rotate(-20deg);
 }
 
 .menu-icon .card-2 {
     left: 6px;
-    top: -4px;
+    top: -2px;
     transform: rotate(0deg);
 }
 
 .menu-icon .card-3 {
     left: 12px;
-    top: -6px;
+    top: -4px;
     transform: rotate(20deg);
 }
 
