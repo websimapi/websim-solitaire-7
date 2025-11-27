@@ -77,9 +77,14 @@ export class SolitaireGame {
             this.waste = [];
             return 'recycle';
         } else {
-            const card = this.stock.pop();
-            card.faceUp = true;
-            this.waste.push(card);
+            // Draw up to 3 cards
+            let drawnCount = 0;
+            while (this.stock.length > 0 && drawnCount < 3) {
+                const card = this.stock.pop();
+                card.faceUp = true;
+                this.waste.push(card);
+                drawnCount++;
+            }
             return 'draw';
         }
     }

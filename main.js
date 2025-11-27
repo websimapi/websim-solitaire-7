@@ -71,16 +71,17 @@ function render() {
     // 2. Waste
     UI.waste.innerHTML = '';
     if (game.waste.length > 0) {
-        // Show top 3 ideally, but for simple logic, show top 1 or stacked 3
-        const visibleWaste = game.waste.slice(-3); // Get last 3
+        // Show last 3 cards drawn
+        const visibleWaste = game.waste.slice(-3);
         visibleWaste.forEach((c, i) => {
             const el = CardRenderer.createCardElement(c);
-            // Stack them slightly
-            el.style.left = `${i * 2}px`; // minimal offset
+            
+            // Fan out to the right (25% of card width per card)
+            el.style.left = `${i * 25}%`; 
             el.style.top = '0px';
             UI.waste.appendChild(el);
 
-            // Only the top one is draggable
+            // Only the top-most card is interactive
             if (i === visibleWaste.length - 1) {
                 makeDraggable(el, { type: 'waste' }, c);
                 makeClickable(el, { type: 'waste' }, c);
