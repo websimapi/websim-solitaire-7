@@ -195,7 +195,7 @@ body {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: space-between;
     line-height: 1;
     padding: 0.15em;
     box-sizing: border-box;
@@ -212,15 +212,9 @@ body {
 }
 
 .card-corner .suit {
-    font-size: 1.1em;
+    font-size: 1.925em;
     margin-top: 0;
-}
-
-/* Small suit-only symbol in top-right */
-.card-corner .suit-only {
     margin-left: auto;
-    margin-right: 0.1em;
-    font-size: 1.1em;
 }
 
 .card-corner.top-left {
@@ -234,19 +228,12 @@ body {
     transform: rotate(180deg);
 }
 
-/* New top-right corner placement */
-.card-corner.top-right {
-    top: 0;
-    right: 0;
-    justify-content: flex-end;
-}
-
 .card-center {
     position: absolute;
     top: 75%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 7em;
+    font-size: 3.5em;
     line-height: 1;
 }
 
