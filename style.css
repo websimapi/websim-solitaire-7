@@ -42,8 +42,10 @@ body {
 /* Mobile-first tuning for background to ensure full-screen fit */
 @media (max-width: 599px) {
     body {
-        background-size: cover;
-        background-position: center top;
+        /* Stretch image to exactly fill viewport width and height on mobile */
+        background-size: 100% 100%;
+        background-position: center center;
+        background-repeat: no-repeat;
         background-attachment: scroll;
     }
 }
