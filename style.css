@@ -212,19 +212,20 @@ body {
 }
 
 .card-corner .suit {
-    font-size: 2.2em;
-    margin-top: -0.1em;
+    font-size: 1.1em;
+    margin-top: 0;
+}
+
+/* Small suit-only symbol in top-right */
+.card-corner .suit-only {
+    margin-left: auto;
+    margin-right: 0.1em;
+    font-size: 1.1em;
 }
 
 .card-corner.top-left {
     top: 0;
     left: 0;
-}
-
-.card-corner.top-right {
-    top: 0;
-    right: 0;
-    justify-content: flex-end;
 }
 
 .card-corner.bottom-right {
@@ -233,12 +234,19 @@ body {
     transform: rotate(180deg);
 }
 
+/* New top-right corner placement */
+.card-corner.top-right {
+    top: 0;
+    right: 0;
+    justify-content: flex-end;
+}
+
 .card-center {
     position: absolute;
     top: 75%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 3.5em;
+    font-size: 7em;
     line-height: 1;
 }
 
