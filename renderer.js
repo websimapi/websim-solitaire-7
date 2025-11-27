@@ -34,10 +34,10 @@ export function render(game, UI, audio) {
             el.style.top = '0px';
             if (fanRight) {
                 el.style.right = '';
-                el.style.left = `${i * 40}%`;
+                el.style.left = `${i * 55}%`;
             } else {
                 el.style.left = '';
-                el.style.right = `${i * 40}%`;
+                el.style.right = `${i * 55}%`;
             }
 
             // When the stock/waste block is on the right side of the screen,
