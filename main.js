@@ -29,7 +29,11 @@ const UI = {
     winOverlay: document.getElementById('win-overlay'),
     restartBtn: document.getElementById('restart-btn'),
     navUndoBtn: document.getElementById('nav-undo-btn'),
-    navHintBtn: document.getElementById('nav-hint-btn')
+    navHintBtn: document.getElementById('nav-hint-btn'),
+    navMenuBtn: document.getElementById('nav-menu-btn'),
+    menuOverlay: document.getElementById('menu-overlay'),
+    menuNewDealBtn: document.getElementById('menu-new-deal-btn'),
+    menuCloseBtn: document.getElementById('menu-close-btn')
 };
 
 let autoCompleting = false;
@@ -220,6 +224,37 @@ function attachListeners() {
         UI.winOverlay.classList.add('hidden');
         startNewGame();
     });
+
+    // Menu Interactions
+    if (UI.navMenuBtn) {
+        UI.navMenuBtn.addEventListener('click', () => {
+            if (isDealing) return;
+            UI.menuOverlay.classList.remove('hidden');
+        });
+    }
+
+    if (UI.menuCloseBtn) {
+        UI.menuCloseBtn.addEventListener('click', () => {
+            UI.menuOverlay.classList.add('hidden');
+        });
+    }
+
+    if (UI.menuNewDealBtn) {
+        UI.menuNewDealBtn.addEventListener('click', () => {
+            UI.menuOverlay.classList.add('hidden');
+            UI.winOverlay.classList.add('hidden');
+            startNewGame();
+        });
+    }
+
+    // Click outside to close menu
+    if (UI.menuOverlay) {
+        UI.menuOverlay.addEventListener('click', (e) => {
+            if (e.target === UI.menuOverlay) {
+                UI.menuOverlay.classList.add('hidden');
+            }
+        });
+    }
 
     if (UI.navHintBtn) {
         UI.navHintBtn.addEventListener('click', () => {
