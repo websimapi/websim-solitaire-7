@@ -212,13 +212,19 @@ body {
 }
 
 .card-corner .suit {
-    font-size: 1.1em;
-    margin-top: 0;
+    font-size: 2.2em;
+    margin-top: -0.1em;
 }
 
 .card-corner.top-left {
     top: 0;
     left: 0;
+}
+
+.card-corner.top-right {
+    top: 0;
+    right: 0;
+    justify-content: flex-end;
 }
 
 .card-corner.bottom-right {
