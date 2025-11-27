@@ -97,6 +97,10 @@ function startTimer() {
     timerInterval = setInterval(() => {
         game.time++;
         UI.timeDisplay.textContent = formatTime(game.time);
+        // Ensure time (and full state) is saved every second
+        if (typeof game.persist === 'function') {
+            game.persist();
+        }
     }, 1000);
 }
 
