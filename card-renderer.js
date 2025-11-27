@@ -30,12 +30,6 @@ export class CardRenderer {
         centerDiv.textContent = icon;
         el.appendChild(centerDiv);
 
-        // Corner Bottom-Right
-        const bottomDiv = document.createElement('div');
-        bottomDiv.className = 'card-corner bottom-right';
-        bottomDiv.innerHTML = `<span class="rank">${card.rank}</span><span class="suit">${icon}</span>`;
-        el.appendChild(bottomDiv);
-
         return el;
     }
 }

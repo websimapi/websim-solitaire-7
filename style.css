@@ -110,22 +110,24 @@ body {
 .card-corner {
     position: absolute;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    justify-content: center;
-    line-height: 0.9;
-    width: 1.5em; /* Increased width to fit '10' better */
-    padding: 0.1em;
+    justify-content: flex-start;
+    line-height: 1;
+    padding: 0.2em;
     box-sizing: border-box;
 }
 
 .card-corner .rank {
     letter-spacing: -0.05em;
     font-weight: 700;
+    font-size: 1.8em;
+    margin-right: 0.05em;
 }
 
 .card-corner .suit {
-    font-size: 0.85em;
+    font-size: 0.8em;
+    margin-top: 0.2em;
 }
 
 .card-corner.top-left {
@@ -141,10 +143,10 @@ body {
 
 .card-center {
     position: absolute;
-    top: 50%;
+    top: 60%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 2.5em;
+    font-size: 3.5em;
     line-height: 1;
 }
 
