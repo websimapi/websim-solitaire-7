@@ -1,6 +1,6 @@
 import { SolitaireGame } from './solitaire.js';
 import { AudioManager } from './audio-manager.js';
-import { render } from './renderer.js';
+import { render, highlightHint } from './renderer.js';
 import { setupDragAndDrop } from './drag-drop.js';
 import { setupStockInteraction } from './stock-layout.js';
 
@@ -28,7 +28,8 @@ const UI = {
     ],
     winOverlay: document.getElementById('win-overlay'),
     restartBtn: document.getElementById('restart-btn'),
-    navUndoBtn: document.getElementById('nav-undo-btn')
+    navUndoBtn: document.getElementById('nav-undo-btn'),
+    navHintBtn: document.getElementById('nav-hint-btn')
 };
 
 const doRender = () => render(game, UI, audio);
@@ -60,6 +61,21 @@ function attachListeners() {
         audio.play('shuffle');
         doRender();
     });
+
+    if (UI.navHintBtn) {
+        UI.navHintBtn.addEventListener('click', () => {
+            const hint = game.getHint();
+            if (hint.type === 'none') {
+                if (confirm("No moves possible. Start a new game?")) {
+                    game.start();
+                    audio.play('shuffle');
+                    doRender();
+                }
+            } else {
+                highlightHint(UI, hint);
+            }
+        });
+    }
 
     if (UI.navUndoBtn) {
         UI.navUndoBtn.addEventListener('click', () => {

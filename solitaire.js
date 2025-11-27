@@ -120,6 +120,80 @@ export class SolitaireGame {
         return top.color !== card.color && top.value === card.value + 1;
     }
 
+    getHint() {
+        // 1. Check for moves to Foundation (Tableau -> Foundation)
+        for (let i = 0; i < 7; i++) {
+            const pile = this.tableau[i];
+            if (pile.length > 0) {
+                const card = pile[pile.length - 1];
+                for (let f = 0; f < 4; f++) {
+                    if (this.canMoveToFoundation(card, f)) {
+                        return { type: 'move', source: 'tableau', index: i, card: card };
+                    }
+                }
+            }
+        }
+
+        // 2. Check for moves to Foundation (Waste -> Foundation)
+        if (this.waste.length > 0) {
+            const card = this.waste[this.waste.length - 1];
+            for (let f = 0; f < 4; f++) {
+                if (this.canMoveToFoundation(card, f)) {
+                    return { type: 'move', source: 'waste', card: card };
+                }
+            }
+        }
+
+        // 3. Check for moves within Tableau (Tableau -> Tableau)
+        // Prioritize moves that uncover face-down cards
+        for (let i = 0; i < 7; i++) {
+            const pile = this.tableau[i];
+            if (pile.length === 0) continue;
+
+            // Find first face up card
+            let faceUpIndex = -1;
+            for (let j = 0; j < pile.length; j++) {
+                if (pile[j].faceUp) {
+                    faceUpIndex = j;
+                    break;
+                }
+            }
+
+            if (faceUpIndex === -1) continue;
+
+            // If it's a King at the bottom, moving it is low priority (unless we just want to allow it)
+            // We'll skip it for hints to avoid loop suggestions unless it helps something else? 
+            // Actually, let's skip King at bottom for hints to keep them "progressive".
+            if (faceUpIndex === 0 && pile[faceUpIndex].rank === 'K') continue;
+
+            const card = pile[faceUpIndex];
+            
+            for (let t = 0; t < 7; t++) {
+                if (i === t) continue;
+                if (this.canMoveToTableau(card, t)) {
+                    return { type: 'move', source: 'tableau', index: i, cardIndex: faceUpIndex, card: card };
+                }
+            }
+        }
+
+        // 4. Check for moves from Waste to Tableau
+        if (this.waste.length > 0) {
+            const card = this.waste[this.waste.length - 1];
+            for (let t = 0; t < 7; t++) {
+                if (this.canMoveToTableau(card, t)) {
+                    return { type: 'move', source: 'waste', card: card };
+                }
+            }
+        }
+
+        // 5. Draw from Stock
+        if (this.stock.length > 0 || this.waste.length > 0) {
+            return { type: 'draw' };
+        }
+
+        return { type: 'none' };
+    }
+
     // Actions
     drawFromStock() {
         // Only save if an action will actually change state

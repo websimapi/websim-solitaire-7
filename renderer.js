@@ -105,3 +105,41 @@ export function render(game, UI, audio) {
         audio.play('win');
     }
 }
+
+export function highlightHint(UI, hint) {
+    let el = null;
+    
+    if (hint.type === 'draw') {
+        // Highlight stock or stock-empty
+        if (UI.stock.style.display !== 'none') {
+            el = UI.stock.lastElementChild || UI.stock;
+        } else {
+            el = UI.stockEmpty;
+        }
+    } else if (hint.type === 'move') {
+        if (hint.source === 'waste') {
+            el = UI.waste.lastElementChild;
+        } else if (hint.source === 'tableau') {
+            const pileContainer = UI.tableau[hint.index];
+            // If cardIndex is provided (sub-stack move), target that card
+            // Otherwise target top card
+            const idx = (hint.cardIndex !== undefined) ? hint.cardIndex : (pileContainer.children.length - 1);
+            if (pileContainer.children[idx]) {
+                el = pileContainer.children[idx];
+            }
+        }
+    }
+
+    if (el) {
+        // Remove existing highlights
+        document.querySelectorAll('.hint-glow').forEach(e => e.classList.remove('hint-glow'));
+        
+        // Add new highlight
+        el.classList.add('hint-glow');
+        
+        // Auto remove after some time
+        setTimeout(() => {
+            if (el) el.classList.remove('hint-glow');
+        }, 2000);
+    }
+}
