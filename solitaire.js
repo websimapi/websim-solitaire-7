@@ -101,6 +101,28 @@ export class SolitaireGame {
         return true;
     }
 
+    isAutoWinState() {
+        if (this.stock.length > 0 || this.waste.length > 0) return false;
+        if (this.checkWin()) return false;
+        return this.tableau.every(pile => pile.every(c => c.faceUp));
+    }
+
+    attemptAutoMove() {
+        for (let i = 0; i < 7; i++) {
+            const pile = this.tableau[i];
+            if (pile.length > 0) {
+                const card = pile[pile.length - 1];
+                for (let f = 0; f < 4; f++) {
+                    if (this.canMoveToFoundation(card, f)) {
+                        this.foundations[f].push(pile.pop());
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     // Rules
     canMoveToFoundation(card, foundationIndex) {
         const pile = this.foundations[foundationIndex];

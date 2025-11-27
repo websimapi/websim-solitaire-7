@@ -32,7 +32,40 @@ const UI = {
     navHintBtn: document.getElementById('nav-hint-btn')
 };
 
-const doRender = () => render(game, UI, audio);
+let autoCompleting = false;
+
+const doRender = () => {
+    render(game, UI, audio);
+    if (!autoCompleting && game.isAutoWinState()) {
+        startAutoComplete();
+    }
+};
+
+function startAutoComplete() {
+    autoCompleting = true;
+    if (UI.navUndoBtn) UI.navUndoBtn.disabled = true;
+    if (UI.navHintBtn) UI.navHintBtn.disabled = true;
+
+    const interval = setInterval(() => {
+        if (game.checkWin()) {
+            clearInterval(interval);
+            autoCompleting = false;
+            doRender();
+            return;
+        }
+
+        const moved = game.attemptAutoMove();
+        if (moved) {
+            if (!game.checkWin()) audio.play('place');
+            render(game, UI, audio);
+        } else {
+            clearInterval(interval);
+            autoCompleting = false;
+            if (UI.navUndoBtn) UI.navUndoBtn.disabled = false;
+            if (UI.navHintBtn) UI.navHintBtn.disabled = false;
+        }
+    }, 100);
+}
 
 (async () => {
     await audio.load();
