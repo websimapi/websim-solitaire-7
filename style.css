@@ -189,15 +189,6 @@ body {
     left: 0;
 }
 
-/* When the drawn stack is on the right side of the screen,
-   shift the small rank/suit group to the right edge of the card */
-.card.right-stack .card-corner.top-left {
-    justify-content: flex-end;
-    text-align: right;
-    padding-right: 0.25em;
-    padding-left: 0.1em;
-}
-
 .card-corner.bottom-right {
     bottom: 0;
     right: 0;

@@ -46,12 +46,6 @@ export function render(game, UI, audio) {
                 el.style.right = `${offsetIndex * 62}%`;
             }
 
-            // When the stock/waste block is on the right side of the screen,
-            // shift the small rank/suit info to the right edge of the card.
-            if (stackOnRight) {
-                el.classList.add('right-stack');
-            }
-
             UI.waste.appendChild(el);
 
             // Only the top-most card is interactive
