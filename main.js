@@ -43,6 +43,60 @@ let autoCompleting = false;
 let isDealing = false;
 let timerInterval = null;
 
+// ---- New Seasonal Background Logic ----
+function determineHemisphere() {
+    return new Promise((resolve) => {
+        if (!navigator.geolocation) {
+            resolve('north'); // fallback default
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                const lat = pos.coords.latitude;
+                resolve(lat >= 0 ? 'north' : 'south');
+            },
+            () => {
+                resolve('north'); // if user denies or error, default to north
+            },
+            {
+                maximumAge: 60 * 60 * 1000,
+                timeout: 5000
+            }
+        );
+    });
+}
+
+function getSeason(date, hemisphere) {
+    const month = date.getMonth(); // 0-11
+    // Meteorological seasons for Northern Hemisphere:
+    // Winter: Dec(11), Jan(0), Feb(1)
+    // Spring: Mar(2), Apr(3), May(4)
+    // Summer: Jun(5), Jul(6), Aug(7)
+    // Fall:   Sep(8), Oct(9), Nov(10)
+    const northSeasons = ['winter','winter','spring','spring','spring','summer','summer','summer','fall','fall','fall','winter'];
+    // Southern Hemisphere seasons are inverted by 6 months
+    const southSeasons = ['summer','summer','fall','fall','fall','winter','winter','winter','spring','spring','spring','summer'];
+
+    if (hemisphere === 'south') {
+        return southSeasons[month];
+    }
+    return northSeasons[month];
+}
+
+function applySeasonalBackground() {
+    determineHemisphere().then((hemi) => {
+        const season = getSeason(new Date(), hemi);
+        let image = 'spring.png';
+        if (season === 'summer') image = 'summer.png';
+        else if (season === 'fall') image = 'fall.png';
+        else if (season === 'winter') image = 'winter.png';
+
+        document.body.style.backgroundImage = `url('${image}')`;
+    });
+}
+// ---- End Seasonal Background Logic ----
+
 // Apply any saved deck layout preference from previous sessions
 function applySavedLayout() {
     let pos;
@@ -224,6 +278,9 @@ function flyCard(fromRect, toRect, targetEl) {
 
     // Restore preferred deck layout before starting the game/render
     applySavedLayout();
+
+    // Apply seasonal background based on current date and hemisphere
+    applySeasonalBackground();
 
     setupDragAndDrop({
         game,
