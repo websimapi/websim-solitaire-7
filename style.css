@@ -164,197 +164,81 @@ body {
     /* Removed specific font-size to align with new action-btn style */
 }
 
-/* Stacked Unicode card icon for Menu button */
-.card-stack-icon {
+/* Custom 3-card menu icon */
+#nav-menu-btn .icon.menu-cards-icon {
     position: relative;
-    width: 2.1rem;
-    height: 2.1rem;
+    width: 24px;
+    height: 18px;
+    margin-bottom: 0;
     display: inline-block;
 }
 
-.card-stack-icon .card-glyph {
+#nav-menu-btn .icon.menu-cards-icon::before,
+#nav-menu-btn .icon.menu-cards-icon::after {
+    content: "";
     position: absolute;
-    font-size: 1.3rem;
-    line-height: 1;
-    text-shadow: 0 0 2px rgba(0,0,0,0.6);
+    width: 16px;
+    height: 12px;
+    border-radius: 2px;
+    border: 1.5px solid rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.1);
+    box-sizing: border-box;
 }
 
 /* Left card */
-.card-stack-icon .card-glyph:nth-child(1) {
-    top: 0.35rem;
-    left: 0.1rem;
-    opacity: 0.9;
-}
-
-/* Center/top card */
-.card-stack-icon .card-glyph:nth-child(2) {
-    top: 0;
-    left: 0.55rem;
-    opacity: 1;
+#nav-menu-btn .icon.menu-cards-icon::before {
+    top: 4px;
+    left: 0;
+    transform: rotate(-10deg);
 }
 
 /* Right card */
-.card-stack-icon .card-glyph:nth-child(3) {
-    top: 0.35rem;
-    left: 1.0rem;
-    opacity: 0.9;
-}
-
-/* Colored suits for the stacked glyphs */
-.card-stack-icon .card-glyph.red {
-    color: #ff4b4b;
-}
-
-.card-stack-icon .card-glyph.black {
-    color: #111;
-}
-
-.pile-container {
-    width: var(--card-width);
-    height: var(--card-height);
-    position: relative;
-    border-radius: var(--card-radius);
-    background-color: rgba(0, 0, 0, 0.1);
-    box-sizing: border-box;
-}
-
-.pile-placeholder {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 2rem;
-    cursor: pointer;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    border-radius: var(--card-radius);
-    box-sizing: border-box;
-}
-
-.card {
-    width: var(--card-width);
-    height: var(--card-height);
-    background-color: white;
-    position: absolute;
-    border-radius: var(--card-radius);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-    border: var(--card-border);
-    box-sizing: border-box;
-    display: block;
-    padding: 0;
-    font-size: var(--card-font-size);
-    cursor: pointer;
-    transition: transform 0.1s ease-out;
-    font-weight: bold;
-}
-
-.card.red { color: #d40000; }
-.card.black { color: #111; }
-
-.card-corner {
-    position: absolute;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    line-height: 1;
-    padding: 0.15em;
-    box-sizing: border-box;
-    white-space: nowrap;
-    width: 100%;
-    overflow: hidden;
-}
-
-.card-corner .rank {
-    letter-spacing: -0.05em;
-    font-weight: 700;
-    font-size: 1.8em;
-    margin-right: 0.1em;
-}
-
-.card-corner .suit {
-    font-size: 1.3em;
-    margin-top: 0;
-    margin-left: auto;
-}
-
-.card-corner.top-left {
-    top: 0;
-    left: 0;
-}
-
-.card-corner.bottom-right {
-    bottom: 0;
+#nav-menu-btn .icon.menu-cards-icon::after {
+    top: 2px;
     right: 0;
-    transform: rotate(180deg);
+    transform: rotate(10deg);
 }
 
-.card-center {
-    position: absolute;
-    top: 65%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 3.2em;
-    line-height: 1;
-}
-
-.card-back {
-    background: repeating-linear-gradient(
-        45deg,
-        #3b6da7,
-        #3b6da7 10px,
-        #305a8a 10px,
-        #305a8a 20px
-    );
-    border: 2px solid white;
-}
-
-.card-back .card-corner, 
-.card-back .card-center {
+/* Center card as the "base" element */
+#nav-menu-btn .icon.menu-cards-icon span {
     display: none;
 }
 
-/* Tableau stacking */
-.tableau .card {
-    /* Top gets set via JS */
+/* Draw the center card using an inner shadow via box-shadow */
+#nav-menu-btn .icon.menu-cards-icon {
+    box-sizing: border-box;
 }
 
-.dragging {
-    z-index: 1000 !important;
-    pointer-events: none; /* Let events pass through to check drop targets */
-    box-shadow: 5px 5px 15px rgba(0,0,0,0.5);
-    opacity: 0.95;
+#nav-menu-btn .icon.menu-cards-icon::marker {
+    content: "";
 }
 
-@keyframes hint-pulse {
-    0% { box-shadow: 0 0 0 0 rgba(255, 255, 0, 0.7); border-color: #ffff00; }
-    70% { box-shadow: 0 0 15px 10px rgba(255, 255, 0, 0); border-color: #ffff00; }
-    100% { box-shadow: 0 0 0 0 rgba(255, 255, 0, 0); border-color: #ffff00; }
+/* Simulated middle card using an extra layered shadow */
+#nav-menu-btn .icon.menu-cards-icon {
+    box-shadow:
+        0 0 0 0 transparent,
+        0 0 0 0 transparent,
+        4px 0 0 0 transparent;
 }
 
-.hint-glow {
-    animation: hint-pulse 1.5s infinite;
-    z-index: 1500 !important;
-    border-color: #ffff00 !important;
+/* Use an extra pseudo-element via overlay on the button for the center card */
+#nav-menu-btn {
+    position: relative;
 }
 
-/* Win Overlay */
-#win-overlay {
+#nav-menu-btn::before {
+    content: "";
     position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.8);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 2000;
-}
-
-.hidden { display: none !important; }
-
-.win-message {
-    text-align: center;
-    color: white;
+    top: 6px;
+    left: 50%;
+    width: 18px;
+    height: 13px;
+    transform: translateX(-50%);
+    border-radius: 2px;
+    border: 1.5px solid rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255, 0.18);
+    box-sizing: border-box;
+    pointer-events: none;
 }
 
 /* Menu Overlay */
