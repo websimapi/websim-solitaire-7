@@ -102,6 +102,14 @@ function updateLayout(x, y, render) {
         topRow.classList.remove('row-reverse');
     }
 
+    // Persist layout preference in localStorage as 'tl', 'tr', 'bl', or 'br'
+    const pos = (isBottom ? 'b' : 't') + (isRight ? 'r' : 'l');
+    try {
+        localStorage.setItem('deckLayout', pos);
+    } catch (e) {
+        // Ignore storage errors (e.g., private mode)
+    }
+
     // Re-render so waste stack and card orientation update to new layout
     if (typeof render === 'function') {
         render();

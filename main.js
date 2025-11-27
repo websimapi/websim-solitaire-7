@@ -34,6 +34,35 @@ const UI = {
 
 let autoCompleting = false;
 
+// Apply any saved deck layout preference from previous sessions
+function applySavedLayout() {
+    let pos;
+    try {
+        pos = localStorage.getItem('deckLayout');
+    } catch (e) {
+        pos = null;
+    }
+    if (!pos) return;
+
+    const gameContainer = document.getElementById('game-container');
+    const topRow = document.getElementById('top-row');
+    if (!gameContainer || !topRow) return;
+
+    // First char: 't' or 'b' (top/bottom)
+    if (pos[0] === 'b') {
+        gameContainer.classList.add('col-reverse');
+    } else {
+        gameContainer.classList.remove('col-reverse');
+    }
+
+    // Second char: 'l' or 'r' (left/right)
+    if (pos[1] === 'r') {
+        topRow.classList.add('row-reverse');
+    } else {
+        topRow.classList.remove('row-reverse');
+    }
+}
+
 const doRender = () => {
     render(game, UI, audio);
     if (!autoCompleting && game.isAutoWinState()) {
@@ -69,6 +98,10 @@ function startAutoComplete() {
 
 (async () => {
     await audio.load();
+
+    // Restore preferred deck layout before starting the game/render
+    applySavedLayout();
+
     game.start();
     audio.play('shuffle');
 
