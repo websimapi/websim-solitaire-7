@@ -214,3 +214,34 @@ button {
         --card-gap: 1vw;
     }
 }
+
+/* Layout Manipulation Classes */
+.row-reverse {
+    flex-direction: row-reverse !important;
+}
+
+.col-reverse {
+    flex-direction: column-reverse !important;
+}
+
+/* Visual feedback for dragging the deck layout */
+.ghost-deck {
+    position: fixed !important;
+    top: 0; left: 0;
+    width: var(--card-width);
+    height: var(--card-height);
+    border-radius: var(--card-radius);
+    background: repeating-linear-gradient(
+        45deg,
+        #3b6da7,
+        #3b6da7 10px,
+        #305a8a 10px,
+        #305a8a 20px
+    );
+    border: 2px solid white;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    z-index: 5000;
+    opacity: 0.8;
+    pointer-events: none;
+    box-sizing: border-box;
+}

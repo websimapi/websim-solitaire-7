@@ -135,17 +135,114 @@ function render() {
 }
 
 function attachListeners() {
-    // Stock click
-    UI.stock.parentElement.addEventListener('click', (e) => {
-        // If clicking empty placeholder or the stock pile
-        if (e.target.closest('#stock') || e.target.id === 'stock-empty') {
-            const result = game.drawFromStock();
-            if (result) {
-                audio.play('place');
-                render();
+    // Stock Interaction (Tap to Draw / Drag to Move Layout)
+    const stockContainer = UI.stock.parentElement;
+    setupStockInteraction(stockContainer);
+}
+
+function setupStockInteraction(container) {
+    let startX, startY;
+    let isDrag = false;
+    let ghost = null;
+    let pointerId = null;
+
+    container.addEventListener('pointerdown', (e) => {
+        // Allow primary touch/click only
+        if (e.button !== 0 && e.type.includes('mouse')) return;
+
+        e.preventDefault(); // Prevent default touch actions (scroll)
+        
+        startX = e.clientX;
+        startY = e.clientY;
+        isDrag = false;
+        pointerId = e.pointerId;
+        container.setPointerCapture(pointerId);
+
+        container.addEventListener('pointermove', onMove);
+        container.addEventListener('pointerup', onUp);
+        container.addEventListener('pointercancel', onUp);
+    });
+
+    function onMove(e) {
+        if (e.pointerId !== pointerId) return;
+
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+
+        // Threshold for drag vs tap
+        if (!isDrag && Math.hypot(dx, dy) > 20) {
+            isDrag = true;
+            createGhost(e.clientX, e.clientY);
+        }
+
+        if (isDrag && ghost) {
+            ghost.style.transform = `translate(${e.clientX - startX}px, ${e.clientY - startY}px)`;
+            // We want the ghost to follow the finger, but creating it at start pos + translate is smoother
+            // actually, simpler to just set left/top to mouse
+            ghost.style.left = `${e.clientX}px`;
+            ghost.style.top = `${e.clientY}px`;
+            ghost.style.transform = 'translate(-50%, -50%)';
+        }
+    }
+
+    function onUp(e) {
+        if (e.pointerId !== pointerId) return;
+
+        container.releasePointerCapture(pointerId);
+        container.removeEventListener('pointermove', onMove);
+        container.removeEventListener('pointerup', onUp);
+        container.removeEventListener('pointercancel', onUp);
+
+        if (isDrag) {
+            // Apply Layout Change
+            updateLayout(e.clientX, e.clientY);
+            if (ghost) ghost.remove();
+            ghost = null;
+        } else {
+            // Handle Tap (Draw Card)
+            if (e.target.closest('#stock') || e.target.id === 'stock-empty') {
+                const result = game.drawFromStock();
+                if (result) {
+                    audio.play('place');
+                    render();
+                }
             }
         }
-    });
+        isDrag = false;
+        pointerId = null;
+    }
+
+    function createGhost(x, y) {
+        ghost = document.createElement('div');
+        ghost.className = 'ghost-deck';
+        ghost.style.left = `${x}px`;
+        ghost.style.top = `${y}px`;
+        ghost.style.transform = 'translate(-50%, -50%)';
+        document.body.appendChild(ghost);
+    }
+}
+
+function updateLayout(x, y) {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    const gameContainer = document.getElementById('game-container');
+    const topRow = document.getElementById('top-row');
+
+    // Quadrants
+    const isRight = x > w / 2;
+    const isBottom = y > h / 2;
+
+    if (isBottom) {
+        gameContainer.classList.add('col-reverse');
+    } else {
+        gameContainer.classList.remove('col-reverse');
+    }
+
+    if (isRight) {
+        topRow.classList.add('row-reverse');
+    } else {
+        topRow.classList.remove('row-reverse');
+    }
 }
 
 function makeClickable(el, source, card) {
