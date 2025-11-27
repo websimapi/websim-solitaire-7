@@ -34,6 +34,7 @@ export class SolitaireGame {
     }
 
     start() {
+        this.initDeck();
         shuffle(this.deck);
         this.stock = [...this.deck];
         this.waste = [];
