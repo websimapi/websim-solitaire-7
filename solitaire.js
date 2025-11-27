@@ -77,7 +77,12 @@ export class SolitaireGame {
             this.waste = [];
             return 'recycle';
         } else {
-            // Draw up to 3 cards
+            // Draw 1 card
+            const card = this.stock.pop();
+            card.faceUp = true;
+            this.waste.push(card);
+
+            /* Previous "Draw 3" logic stored for later:
             let drawnCount = 0;
             while (this.stock.length > 0 && drawnCount < 3) {
                 const card = this.stock.pop();
@@ -85,6 +90,8 @@ export class SolitaireGame {
                 this.waste.push(card);
                 drawnCount++;
             }
+            */
+
             return 'draw';
         }
     }
