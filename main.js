@@ -33,6 +33,7 @@ const UI = {
 };
 
 let autoCompleting = false;
+let isDealing = false;
 
 // Apply any saved deck layout preference from previous sessions
 function applySavedLayout() {
@@ -64,6 +65,9 @@ function applySavedLayout() {
 }
 
 const doRender = () => {
+    // If we are in the middle of a deal animation, do not re-render full state yet
+    if (isDealing) return;
+    
     render(game, UI, audio);
     if (!autoCompleting && game.isAutoWinState()) {
         startAutoComplete();
@@ -92,8 +96,92 @@ function startAutoComplete() {
             autoCompleting = false;
             if (UI.navUndoBtn) UI.navUndoBtn.disabled = false;
             if (UI.navHintBtn) UI.navHintBtn.disabled = false;
+            doRender();
         }
     }, 100);
+}
+
+// Sequence for dealing cards with animation
+function animateDeal() {
+    isDealing = true;
+    document.body.classList.add('dealing');
+    
+    // 1. Render the game state (which places cards in tableau)
+    // We bypass doRender's check by calling render directly once
+    render(game, UI, audio);
+
+    // 2. Immediately hide all tableau cards so we can animate them in
+    UI.tableau.forEach(pile => {
+        Array.from(pile.children).forEach(card => {
+            card.style.visibility = 'hidden';
+        });
+    });
+
+    // 3. Loop through the standard deal order
+    let dealCount = 0;
+    const delayInterval = 60; // ms between cards
+
+    // Get stock position for start of animation
+    // If stock is technically empty (shouldn't be at start), use placeholder
+    const stockEl = UI.stock.style.display !== 'none' ? UI.stock : UI.stockEmpty;
+    const stockRect = stockEl.getBoundingClientRect();
+
+    // Standard Solitaire Deal Order:
+    // Row 0: Cols 0-6
+    // Row 1: Cols 1-6
+    // ...
+    // Row 6: Col 6
+    for (let i = 0; i < 7; i++) {
+        for (let j = i; j < 7; j++) {
+            const targetPile = UI.tableau[j];
+            // The i-th card in the pile corresponds to this deal round
+            const targetCard = targetPile.children[i];
+            
+            if (targetCard) {
+                const currentDelay = dealCount * delayInterval;
+                setTimeout(() => {
+                    const targetRect = targetCard.getBoundingClientRect();
+                    flyCard(stockRect, targetRect, targetCard);
+                }, currentDelay);
+                dealCount++;
+            }
+        }
+    }
+
+    // 4. Clean up after all animations done
+    // Duration approx: count * interval + transition time (250ms)
+    const totalTime = (dealCount * delayInterval) + 300;
+    setTimeout(() => {
+        isDealing = false;
+        document.body.classList.remove('dealing');
+        doRender(); // Final consistent render
+    }, totalTime);
+}
+
+function flyCard(fromRect, toRect, targetEl) {
+    // Create flying element
+    const flyer = document.createElement('div');
+    flyer.className = 'flying-card';
+    flyer.style.left = `${fromRect.left}px`;
+    flyer.style.top = `${fromRect.top}px`;
+    document.body.appendChild(flyer);
+
+    // Force reflow to ensure start position is registered
+    flyer.offsetHeight;
+
+    // Animate
+    const dx = toRect.left - fromRect.left;
+    const dy = toRect.top - fromRect.top;
+    flyer.style.transform = `translate(${dx}px, ${dy}px)`;
+
+    // Play sound (slightly varied pitch or just play)
+    audio.play('place');
+
+    // On finish
+    flyer.addEventListener('transitionend', () => {
+        flyer.remove();
+        if (targetEl) targetEl.style.visibility = 'visible';
+    }, { once: true });
 }
 
 (async () => {
@@ -102,8 +190,7 @@ function startAutoComplete() {
     // Restore preferred deck layout before starting the game/render
     applySavedLayout();
 
-    game.start();
-    audio.play('shuffle');
+    startNewGame();
 
     setupDragAndDrop({
         game,
@@ -117,19 +204,24 @@ function startAutoComplete() {
     attachListeners();
 })();
 
+function startNewGame() {
+    game.start();
+    audio.play('shuffle');
+    animateDeal();
+}
+
 function attachListeners() {
     const stockContainer = UI.stock.parentElement;
     setupStockInteraction(stockContainer, game, audio, doRender);
 
     UI.restartBtn.addEventListener('click', () => {
         UI.winOverlay.classList.add('hidden');
-        game.start();
-        audio.play('shuffle');
-        doRender();
+        startNewGame();
     });
 
     if (UI.navHintBtn) {
         UI.navHintBtn.addEventListener('click', () => {
+            if (isDealing) return;
             const hint = game.getHint();
             if (hint.type === 'none') {
                 if (confirm("No moves possible. Start a new game?")) {
@@ -145,6 +237,7 @@ function attachListeners() {
 
     if (UI.navUndoBtn) {
         UI.navUndoBtn.addEventListener('click', () => {
+            if (isDealing) return;
             const undone = game.undo();
             if (undone) {
                 doRender();

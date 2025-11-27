@@ -343,3 +343,30 @@ button {
 .layout-target.tr { top: var(--card-gap); right: var(--card-gap); }
 .layout-target.bl { bottom: var(--card-gap); left: var(--card-gap); }
 .layout-target.br { bottom: var(--card-gap); right: var(--card-gap); }
+
+/* Animation Classes */
+body.dealing {
+    pointer-events: none;
+}
+
+.flying-card {
+    position: fixed;
+    width: var(--card-width);
+    height: var(--card-height);
+    background: repeating-linear-gradient(
+        45deg,
+        #3b6da7,
+        #3b6da7 10px,
+        #305a8a 10px,
+        #305a8a 20px
+    );
+    border: 2px solid white;
+    border-radius: var(--card-radius);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    z-index: 9999;
+    pointer-events: none;
+    transition: transform 0.25s ease-out;
+    transform-origin: center center;
+    box-sizing: border-box;
+    will-change: transform;
+}
