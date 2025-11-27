@@ -19,6 +19,7 @@ export class SolitaireGame {
         this.waste = [];
         this.foundations = [[], [], [], []]; // 4 piles
         this.tableau = [[], [], [], [], [], [], []]; // 7 piles
+        this.history = [];
         this.initDeck();
     }
 
@@ -38,6 +39,7 @@ export class SolitaireGame {
         this.waste = [];
         this.foundations = [[], [], [], []];
         this.tableau = [[], [], [], [], [], [], []];
+        this.history = [];
 
         // Deal
         for (let i = 0; i < 7; i++) {
@@ -47,6 +49,56 @@ export class SolitaireGame {
                 this.tableau[j].push(card);
             }
         }
+
+        // Save initial state after dealing
+        this.saveState();
+    }
+
+    // Internal helpers for undo/redo
+    clonePile(pile) {
+        return pile.map(c => ({
+            suit: c.suit,
+            rank: c.rank,
+            id: c.id,
+            faceUp: c.faceUp,
+            value: c.value,
+            color: c.color
+        }));
+    }
+
+    restorePile(pileData) {
+        return pileData.map(c => {
+            const card = new Card(c.suit, c.rank, c.id);
+            card.faceUp = c.faceUp;
+            card.value = c.value;
+            card.color = c.color;
+            return card;
+        });
+    }
+
+    saveState() {
+        const snapshot = {
+            stock: this.clonePile(this.stock),
+            waste: this.clonePile(this.waste),
+            foundations: this.foundations.map(p => this.clonePile(p)),
+            tableau: this.tableau.map(p => this.clonePile(p))
+        };
+        this.history.push(snapshot);
+    }
+
+    undo() {
+        if (this.history.length <= 1) {
+            // Keep at least the initial state; nothing to undo
+            return false;
+        }
+        // Discard current state
+        this.history.pop();
+        const prev = this.history[this.history.length - 1];
+        this.stock = this.restorePile(prev.stock);
+        this.waste = this.restorePile(prev.waste);
+        this.foundations = prev.foundations.map(p => this.restorePile(p));
+        this.tableau = prev.tableau.map(p => this.restorePile(p));
+        return true;
     }
 
     // Rules
@@ -70,14 +122,17 @@ export class SolitaireGame {
 
     // Actions
     drawFromStock() {
+        // Only save if an action will actually change state
         if (this.stock.length === 0) {
             // Recycle waste
             if (this.waste.length === 0) return false;
+            this.saveState();
             this.stock = this.waste.reverse().map(c => { c.faceUp = false; return c; });
             this.waste = [];
             return 'recycle';
         } else {
             // Draw 1 card
+            this.saveState();
             const card = this.stock.pop();
             card.faceUp = true;
             this.waste.push(card);

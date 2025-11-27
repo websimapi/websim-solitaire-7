@@ -27,7 +27,8 @@ const UI = {
         document.getElementById('tableau-6')
     ],
     winOverlay: document.getElementById('win-overlay'),
-    restartBtn: document.getElementById('restart-btn')
+    restartBtn: document.getElementById('restart-btn'),
+    navUndoBtn: document.getElementById('nav-undo-btn')
 };
 
 const doRender = () => render(game, UI, audio);
@@ -59,4 +60,14 @@ function attachListeners() {
         audio.play('shuffle');
         doRender();
     });
+
+    if (UI.navUndoBtn) {
+        UI.navUndoBtn.addEventListener('click', () => {
+            const undone = game.undo();
+            if (undone) {
+                doRender();
+            }
+        });
+    }
 }
+

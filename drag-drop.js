@@ -197,6 +197,11 @@ function attemptMove(target) {
 }
 
 function executeMove(target) {
+    // Save state before mutating so we can undo
+    if (typeof gameRef.saveState === 'function') {
+        gameRef.saveState();
+    }
+
     let movingCards = [];
     if (dragSource.type === 'waste') {
         movingCards = [gameRef.waste.pop()];
