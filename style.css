@@ -164,6 +164,51 @@ body {
     /* Removed specific font-size to align with new action-btn style */
 }
 
+/* Stacked Unicode card icon for Menu button */
+.card-stack-icon {
+    position: relative;
+    width: 2.1rem;
+    height: 2.1rem;
+    display: inline-block;
+}
+
+.card-stack-icon .card-glyph {
+    position: absolute;
+    font-size: 1.3rem;
+    line-height: 1;
+    text-shadow: 0 0 2px rgba(0,0,0,0.6);
+}
+
+/* Left card */
+.card-stack-icon .card-glyph:nth-child(1) {
+    top: 0.35rem;
+    left: 0.1rem;
+    opacity: 0.9;
+}
+
+/* Center/top card */
+.card-stack-icon .card-glyph:nth-child(2) {
+    top: 0;
+    left: 0.55rem;
+    opacity: 1;
+}
+
+/* Right card */
+.card-stack-icon .card-glyph:nth-child(3) {
+    top: 0.35rem;
+    left: 1.0rem;
+    opacity: 0.9;
+}
+
+/* Colored suits for the stacked glyphs */
+.card-stack-icon .card-glyph.red {
+    color: #ff4b4b;
+}
+
+.card-stack-icon .card-glyph.black {
+    color: #111;
+}
+
 .pile-container {
     width: var(--card-width);
     height: var(--card-height);
