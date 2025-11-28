@@ -199,8 +199,73 @@ export class SolitaireGame {
     }
 
     getHint() {
+        // Helper: Check if current state allows any "Progressive" moves.
+        // Progressive moves are:
+        // 1. Move to Foundation
+        // 2. Tableau Reveal (moving card off a face-down card)
+        // 3. Waste to Tableau (bringing new card into play)
+        // 4. Empty a Column (if useful base move)
+        const hasProgressiveMove = () => {
+            // 1. Check Foundation Moves (from Tableau & Waste)
+            for (let i = 0; i < 7; i++) {
+                if (this.tableau[i].length > 0) {
+                    const card = this.tableau[i][this.tableau[i].length - 1];
+                    for (let f = 0; f < 4; f++) {
+                        if (this.canMoveToFoundation(card, f)) return true;
+                    }
+                }
+            }
+            if (this.waste.length > 0) {
+                const card = this.waste[this.waste.length - 1];
+                for (let f = 0; f < 4; f++) {
+                    if (this.canMoveToFoundation(card, f)) return true;
+                }
+            }
+
+            // 2. Check Reveal Moves (Tableau -> Tableau)
+            for (let i = 0; i < 7; i++) {
+                const pile = this.tableau[i];
+                if (pile.length === 0) continue;
+                
+                // Find index of the deepest face-up card
+                let firstFaceUp = -1;
+                for (let k = 0; k < pile.length; k++) { 
+                    if (pile[k].faceUp) { firstFaceUp = k; break; } 
+                }
+
+                // If this face-up card is covering a face-down card, moving it is progressive
+                if (firstFaceUp > 0 && !pile[firstFaceUp - 1].faceUp) {
+                    const card = pile[firstFaceUp];
+                    for (let t = 0; t < 7; t++) {
+                        if (i !== t && this.canMoveToTableau(card, t)) return true;
+                    }
+                }
+            }
+
+            // 3. Check Waste -> Tableau
+            if (this.waste.length > 0) {
+                const card = this.waste[this.waste.length - 1];
+                for (let t = 0; t < 7; t++) {
+                    if (this.canMoveToTableau(card, t)) return true;
+                }
+            }
+
+            // 4. Check Empty Column Moves (Base card -> somewhere else)
+            // Moving a base card (index 0) to another pile creates an empty slot for a King.
+            for (let i = 0; i < 7; i++) {
+                const pile = this.tableau[i];
+                if (pile.length > 0 && pile[0].faceUp && pile[0].rank !== 'K') {
+                    const card = pile[0];
+                    for (let t = 0; t < 7; t++) {
+                        if (i !== t && this.canMoveToTableau(card, t)) return true;
+                    }
+                }
+            }
+
+            return false;
+        };
+
         // Priority 1: Move to Foundation (Tableau -> Foundation)
-        // Helps progress the game immediately (score + clear space).
         for (let i = 0; i < 7; i++) {
             const pile = this.tableau[i];
             if (pile.length > 0) {
@@ -224,8 +289,6 @@ export class SolitaireGame {
         }
 
         // Priority 3: Reveal Face-Down Cards (Tableau -> Tableau)
-        // This is the most important board progression move.
-        // We only look at the deepest face-up card in each pile.
         for (let i = 0; i < 7; i++) {
             const pile = this.tableau[i];
             if (pile.length === 0) continue;
@@ -239,7 +302,6 @@ export class SolitaireGame {
             }
             if (firstFaceUp === -1) continue;
 
-            // Only relevant if moving this stack reveals a face-down card
             if (firstFaceUp > 0 && !pile[firstFaceUp - 1].faceUp) {
                 const card = pile[firstFaceUp];
                 for (let t = 0; t < 7; t++) {
@@ -252,7 +314,6 @@ export class SolitaireGame {
         }
 
         // Priority 4: Move from Waste -> Tableau
-        // Brings a new card into play.
         if (this.waste.length > 0) {
             const card = this.waste[this.waste.length - 1];
             for (let t = 0; t < 7; t++) {
@@ -263,11 +324,9 @@ export class SolitaireGame {
         }
 
         // Priority 5: Clear a Tableau Column (Tableau -> Tableau)
-        // Moves the base of a pile (index 0) to another pile to create an empty slot (for a King).
         for (let i = 0; i < 7; i++) {
             const pile = this.tableau[i];
             if (pile.length > 0 && pile[0].faceUp) {
-                // Don't suggest moving a King from an empty slot to another empty slot/pile
                 if (pile[0].rank === 'K') continue;
 
                 const card = pile[0];
@@ -281,8 +340,7 @@ export class SolitaireGame {
         }
 
         // Priority 6: Draw from Stock
-        // If we can't make meaningful progress on board, get new cards.
-        // We perform a deep check to ensure drawing is actually useful (avoids infinite loops).
+        // Ensure that drawing is useful (i.e., deck contains a card that can be played)
         if (this.stock.length > 0 || this.waste.length > 0) {
             const allDeckCards = [...this.stock, ...this.waste];
             let useful = false;
@@ -312,32 +370,45 @@ export class SolitaireGame {
             }
         }
 
-        // Priority 7: Lateral Moves (Tableau -> Tableau)
-        // Moves that don't reveal cards or empty columns (moving from one face-up card to another).
-        // Lowest priority, prevents "moving back and forth" suggestions unless strictly necessary.
+        // Priority 7: Smart Lateral Moves (Tableau -> Tableau)
+        // Only suggest "shifting stacks around" if the new state enables a Progressive Move.
+        // This prevents infinite loops of moving the same stack back and forth.
         for (let i = 0; i < 7; i++) {
             const pile = this.tableau[i];
             if (pile.length === 0) continue;
 
+            // Find first face up card
             let firstFaceUp = -1;
-            for (let j = 0; j < pile.length; j++) {
-                if (pile[j].faceUp) {
-                    firstFaceUp = j;
-                    break;
-                }
+            for (let k = 0; k < pile.length; k++) { 
+                if (pile[k].faceUp) { firstFaceUp = k; break; } 
             }
             if (firstFaceUp === -1) continue;
 
-            for (let j = firstFaceUp; j < pile.length; j++) {
-                // Skip revealed-check (Priority 3) and emptying-check (Priority 5) cases
-                const isRevealing = (j > 0 && !pile[j-1].faceUp);
-                const isEmptying = (j === 0);
+            // Iterate cards that are NOT the base of a reveal/empty move.
+            // i.e., lateral moves involve cards that are already sitting on another face-up card.
+            for (let j = firstFaceUp + 1; j < pile.length; j++) {
+                const card = pile[j];
                 
-                if (!isRevealing && !isEmptying) {
-                    const card = pile[j];
-                    for (let t = 0; t < 7; t++) {
-                        if (i === t) continue;
-                        if (this.canMoveToTableau(card, t)) {
+                // Try moving this sub-stack to another pile 't'
+                for (let t = 0; t < 7; t++) {
+                    if (i === t) continue;
+                    if (this.canMoveToTableau(card, t)) {
+                        // SIMULATE THE MOVE
+                        const originalSource = this.tableau[i];
+                        const originalTarget = this.tableau[t];
+
+                        // Apply move locally
+                        this.tableau[i] = originalSource.slice(0, j);
+                        this.tableau[t] = [...originalTarget, ...originalSource.slice(j)];
+
+                        // Check if this new state allows any Progressive Move (Prio 1-5)
+                        const leadsToProgress = hasProgressiveMove();
+
+                        // RESTORE STATE
+                        this.tableau[i] = originalSource;
+                        this.tableau[t] = originalTarget;
+
+                        if (leadsToProgress) {
                             return { type: 'move', source: 'tableau', index: i, cardIndex: j, card: card };
                         }
                     }

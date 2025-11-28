@@ -352,7 +352,7 @@ function attachListeners() {
             if (isDealing) return;
             const hint = game.getHint();
             if (hint.type === 'none') {
-                if (confirm("Stalemate! Game Over.\n\nNo more moves are possible.\nStart a new game?")) {
+                if (confirm("Stalemate! Game Over.\nNo moves possible with current deck.\n\nStart a new game?")) {
                     startNewGame();
                 }
             } else {
