@@ -1,6 +1,6 @@
 import { SolitaireGame } from './solitaire.js';
 import { AudioManager } from './audio-manager.js';
-import { render, highlightHint } from './renderer.js';
+import { render, highlightHint, clearHint } from './renderer.js';
 import { setupDragAndDrop } from './drag-drop.js';
 import { setupStockInteraction } from './stock-layout.js';
 
@@ -301,7 +301,8 @@ function flyCard(fromRect, toRect, targetEl) {
         game,
         UI,
         audio,
-        render: doRender
+        render: doRender,
+        clearHint
     });
 
     if (game.load()) {
@@ -324,7 +325,7 @@ function startNewGame() {
 
 function attachListeners() {
     const stockContainer = UI.stock.parentElement;
-    setupStockInteraction(stockContainer, game, audio, doRender);
+    setupStockInteraction(stockContainer, game, audio, doRender, clearHint);
 
     UI.restartBtn.addEventListener('click', () => {
         UI.winOverlay.classList.add('hidden');

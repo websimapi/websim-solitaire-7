@@ -1,6 +1,10 @@
 import { CardRenderer } from './card-renderer.js';
 import { makeCardInteractive } from './drag-drop.js';
 
+export function clearHint() {
+    document.querySelectorAll('.hint-overlay').forEach(e => e.remove());
+}
+
 export function render(game, UI, audio) {
     // Update stats immediately on render
     if (UI.scoreDisplay) UI.scoreDisplay.textContent = game.score;
@@ -105,39 +109,62 @@ export function render(game, UI, audio) {
 }
 
 export function highlightHint(UI, hint) {
-    let el = null;
-    
+    // Collect all elements involved in the hint (e.g., entire substack for tableau)
+    const elementsToHighlight = [];
+
     if (hint.type === 'draw') {
-        // Highlight stock or stock-empty
         if (UI.stock.style.display !== 'none') {
-            el = UI.stock.lastElementChild || UI.stock;
+            elementsToHighlight.push(UI.stock.lastElementChild || UI.stock);
         } else {
-            el = UI.stockEmpty;
+            elementsToHighlight.push(UI.stockEmpty);
         }
     } else if (hint.type === 'move') {
         if (hint.source === 'waste') {
-            el = UI.waste.lastElementChild;
+            elementsToHighlight.push(UI.waste.lastElementChild);
         } else if (hint.source === 'tableau') {
             const pileContainer = UI.tableau[hint.index];
-            // If cardIndex is provided (sub-stack move), target that card
-            // Otherwise target top card
-            const idx = (hint.cardIndex !== undefined) ? hint.cardIndex : (pileContainer.children.length - 1);
-            if (pileContainer.children[idx]) {
-                el = pileContainer.children[idx];
+            // If cardIndex is provided, it's the start of the moving stack.
+            // If not, default to the top card.
+            const startIndex = (hint.cardIndex !== undefined) ? hint.cardIndex : (pileContainer.children.length - 1);
+            
+            // Add the card and all subsequent cards (the stack on top of it)
+            for (let i = startIndex; i < pileContainer.children.length; i++) {
+                if (pileContainer.children[i]) {
+                    elementsToHighlight.push(pileContainer.children[i]);
+                }
             }
         }
     }
 
-    if (el) {
-        // Remove existing highlights
-        document.querySelectorAll('.hint-glow').forEach(e => e.classList.remove('hint-glow'));
+    // Remove any existing hint overlays
+    clearHint();
+
+    if (elementsToHighlight.length > 0) {
+        // Calculate the union bounding box of all highlighted elements
+        let minTop = Infinity, minLeft = Infinity;
+        let maxBottom = -Infinity, maxRight = -Infinity;
+
+        elementsToHighlight.forEach(el => {
+            const rect = el.getBoundingClientRect();
+            if (rect.top < minTop) minTop = rect.top;
+            if (rect.left < minLeft) minLeft = rect.left;
+            if (rect.bottom > maxBottom) maxBottom = rect.bottom;
+            if (rect.right > maxRight) maxRight = rect.right;
+        });
+
+        // Create a single overlay element to outline the group
+        const overlay = document.createElement('div');
+        overlay.className = 'hint-overlay';
+        overlay.style.top = `${minTop}px`;
+        overlay.style.left = `${minLeft}px`;
+        overlay.style.width = `${maxRight - minLeft}px`;
+        overlay.style.height = `${maxBottom - minTop}px`;
         
-        // Add new highlight
-        el.classList.add('hint-glow');
+        document.body.appendChild(overlay);
         
-        // Auto remove after some time
+        // Auto remove after 2 seconds
         setTimeout(() => {
-            if (el) el.classList.remove('hint-glow');
+            overlay.remove();
         }, 2000);
     }
 }

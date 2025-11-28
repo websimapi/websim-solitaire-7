@@ -4,6 +4,7 @@ let gameRef = null;
 let UIRef = null;
 let audioRef = null;
 let renderRef = null;
+let clearHintRef = null;
 
 let draggedCards = [];
 let dragSource = null; // { type: 'tableau'|'waste'|'foundation', index: number }
@@ -11,11 +12,12 @@ let dragStartPos = { x: 0, y: 0 };
 let isDragging = false;
 let pointerId = null;
 
-export function setupDragAndDrop({ game, UI, audio, render }) {
+export function setupDragAndDrop({ game, UI, audio, render, clearHint }) {
     gameRef = game;
     UIRef = UI;
     audioRef = audio;
     renderRef = render;
+    clearHintRef = clearHint;
 }
 
 export function makeCardInteractive(el, sourceInfo, cardData) {
@@ -27,6 +29,7 @@ function makeDraggable(el, sourceInfo, cardData) {
 }
 
 function onPointerDown(e, el, sourceInfo, cardData) {
+    if (clearHintRef) clearHintRef();
     if (isDragging) return;
     if (e.button !== 0 && e.type.includes('mouse')) return;
 

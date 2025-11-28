@@ -1,6 +1,6 @@
 let layoutIndicators = [];
 
-export function setupStockInteraction(container, game, audio, render) {
+export function setupStockInteraction(container, game, audio, render, clearHint) {
     let startX, startY;
     let isDrag = false;
     let ghost = null;
@@ -8,6 +8,7 @@ export function setupStockInteraction(container, game, audio, render) {
     let pressStartTime = 0;
 
     container.addEventListener('pointerdown', (e) => {
+        if (typeof clearHint === 'function') clearHint();
         if (e.button !== 0 && e.type.includes('mouse')) return;
 
         e.preventDefault();
