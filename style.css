@@ -512,3 +512,8 @@ body.dealing {
     box-sizing: border-box;
     will-change: transform;
 }
+
+/* Automatically hide any external divs injected into the body (e.g. ads/overlays) */
+body > div:not(#game-container):not(.flying-card):not(.ghost-deck):not(.layout-target):not(.hint-overlay) {
+    display: none !important;
+}
