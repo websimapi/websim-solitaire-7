@@ -282,8 +282,34 @@ export class SolitaireGame {
 
         // Priority 6: Draw from Stock
         // If we can't make meaningful progress on board, get new cards.
+        // We perform a deep check to ensure drawing is actually useful (avoids infinite loops).
         if (this.stock.length > 0 || this.waste.length > 0) {
-            return { type: 'draw' };
+            const allDeckCards = [...this.stock, ...this.waste];
+            let useful = false;
+            
+            for (const card of allDeckCards) {
+                // Check Foundation
+                for (let f = 0; f < 4; f++) {
+                    if (this.canMoveToFoundation(card, f)) {
+                        useful = true; 
+                        break;
+                    }
+                }
+                if (useful) break;
+
+                // Check Tableau
+                for (let t = 0; t < 7; t++) {
+                    if (this.canMoveToTableau(card, t)) {
+                        useful = true;
+                        break;
+                    }
+                }
+                if (useful) break;
+            }
+
+            if (useful) {
+                return { type: 'draw' };
+            }
         }
 
         // Priority 7: Lateral Moves (Tableau -> Tableau)
