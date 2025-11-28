@@ -4,6 +4,20 @@ import { render, highlightHint } from './renderer.js';
 import { setupDragAndDrop } from './drag-drop.js';
 import { setupStockInteraction } from './stock-layout.js';
 
+// Calculate correct viewport height, handling mobile URL bars and iframes
+function initViewportHeight() {
+    const setVh = () => {
+        // Use innerHeight to support iframes correctly
+        // On mobile, this excludes the browser interface (address bar)
+        const vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+    };
+    
+    setVh();
+    window.addEventListener('resize', setVh);
+    window.addEventListener('orientationchange', setVh);
+}
+
 const game = new SolitaireGame();
 const audio = new AudioManager();
 
@@ -274,6 +288,7 @@ function flyCard(fromRect, toRect, targetEl) {
 }
 
 (async () => {
+    initViewportHeight();
     await audio.load();
 
     // Restore preferred deck layout before starting the game/render
